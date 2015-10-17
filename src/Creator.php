@@ -132,20 +132,22 @@ class Creator
                 if (self::$defaultSilhouettePath !== null && is_file(self::$defaultSilhouettePath)) {
                     $image_name = basename(self::$defaultSilhouettePath);
                     $orig_path = self::$defaultSilhouettePath;
+                    $dest_path = $webroot . self::$resizedBaseDir . '/' . $dir_name . '/custom-' . $image_name;
                 } else {
                     $image_name = self::DEFAULT_SILHOUETTE_NAME;
                     $orig_path = __DIR__ . '/images/' . $image_name;
+                    $dest_path = $webroot . self::$resizedBaseDir . '/' . $dir_name . '/' . $image_name;
                 }
-                $dest_path = $webroot . self::$resizedBaseDir . '/' . $dir_name . '/' . $image_name;
             } else {
                 if (self::$defaultImagePath !== null && is_file(self::$defaultImagePath)) {
                     $image_name = basename(self::$defaultImagePath);
                     $orig_path = self::$defaultImagePath;
+                    $dest_path = $webroot . self::$resizedBaseDir . '/' . $dir_name . '/custom-' . $image_name;
                 } else {
                     $image_name = self::DEFAULT_IMAGE_NAME;
                     $orig_path = __DIR__ . '/images/' . $image_name;
+                    $dest_path = $webroot . self::$resizedBaseDir . '/' . $dir_name . '/' . $image_name;
                 }
-                $dest_path = $webroot . self::$resizedBaseDir . '/' . $dir_name . '/' . $image_name;
             }
             // already exists
             if (is_file($dest_path)) {
