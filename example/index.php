@@ -48,6 +48,7 @@ echo "<br>\n";
 // placeholder examples
 
 $src = Image::init('uploads/not-found.jpeg')->crop(170, 150);
+test_image($src . '?custom=1');
 test_image($src);
 
 $src = Image::init('uploads/not-found.gif')->silhouette()->noTopOffset()->crop(170, 150);
@@ -56,8 +57,9 @@ test_image($src);
 $src = Image::init('uploads/not-found.png')->silhouette()->crop(110, 150);
 test_image($src);
 
-$src = Image::init('uploads/not-found.png')->disableAlpha()->bgColor('36c')->place(200, 150);
+$src = Image::init('uploads/not-found.png')->disableAlpha()->bgColor('69f')->place(200, 150);
 test_image($src);
+test_image($src . '?custom=1');
 
 echo "<br>\n";
 

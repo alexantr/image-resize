@@ -60,6 +60,16 @@ class Creator
     public static $methods = array('crop', 'fit', 'fitw', 'fith', 'place');
 
     /**
+     * @var string custom path to default image
+     */
+    public static $defaultImagePath;
+
+    /**
+     * @var string custom path to default silhouette image
+     */
+    public static $defaultSilhouettePath;
+
+    /**
      * Create image based on $path
      *
      * @param string $webroot
@@ -119,17 +129,27 @@ class Creator
         // create paths for missing image
         if (!is_file($orig_path)) {
             if ($silhouette) {
-                $image_name = self::DEFAULT_SILHOUETTE_NAME;
-                $orig_path = __DIR__ . '/images/' . $image_name;
+                if (self::$defaultSilhouettePath !== null && is_file(self::$defaultSilhouettePath)) {
+                    $image_name = basename(self::$defaultSilhouettePath);
+                    $orig_path = self::$defaultSilhouettePath;
+                } else {
+                    $image_name = self::DEFAULT_SILHOUETTE_NAME;
+                    $orig_path = __DIR__ . '/images/' . $image_name;
+                }
                 $dest_path = $webroot . self::$resizedBaseDir . '/' . $dir_name . '/' . $image_name;
             } else {
-                $image_name = self::DEFAULT_IMAGE_NAME;
-                $orig_path = __DIR__ . '/images/' . $image_name;
+                if (self::$defaultImagePath !== null && is_file(self::$defaultImagePath)) {
+                    $image_name = basename(self::$defaultImagePath);
+                    $orig_path = self::$defaultImagePath;
+                } else {
+                    $image_name = self::DEFAULT_IMAGE_NAME;
+                    $orig_path = __DIR__ . '/images/' . $image_name;
+                }
                 $dest_path = $webroot . self::$resizedBaseDir . '/' . $dir_name . '/' . $image_name;
             }
             // already exists
             if (is_file($dest_path)) {
-                self::showImage($dest_path, 'image/png');
+                self::showImage($dest_path);
             }
         }
 
