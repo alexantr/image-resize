@@ -1,5 +1,4 @@
 <?php
-
 require '../vendor/autoload.php';
 
 $webroot = __DIR__;
