@@ -99,6 +99,8 @@ class Creator
         $silhouette = $params['silhouette'];
         $disable_alpha = $params['disable_alpha'];
         $no_top_offset = $params['no_top_offset'];
+        $disable_copy = $params['disable_copy'];
+        $skip_small = $params['skip_small'];
         $image_url = $params['image_url'];
 
         // wrong params
@@ -182,6 +184,30 @@ class Creator
         if (!is_dir($dir_path)) {
             if (!FileHelper::createDirectory($dir_path)) {
                 self::showBlankImage();
+            }
+        }
+
+        if (!$disable_copy) {
+            // copy with identical sizes
+            if (
+                ($method == 'fitw' && $width == $w) ||
+                ($method == 'fith' && $height == $h) ||
+                ($method != 'fitw' && $method != 'fith' && $width == $w && $height == $h)
+            ) {
+                copy($orig_path, $dest_path);
+                self::showImage($dest_path);
+            }
+
+            // copy smaller
+            if ($skip_small) {
+                if (
+                    ($method == 'fitw' && $width >= $w) ||
+                    ($method == 'fith' && $height >= $h) ||
+                    ($method != 'fitw' && $method != 'fith' && $width >= $w && $height >= $h)
+                ) {
+                    copy($orig_path, $dest_path);
+                    self::showImage($dest_path);
+                }
             }
         }
 
@@ -306,7 +332,7 @@ class Creator
      *
      * @return array|bool
      */
-    private static function parsePath($path)
+    protected static function parsePath($path)
     {
         $methods = implode('|', Creator::$methods);
         if (preg_match('{^(([0-9]{1,4})-([0-9]{1,4})-(' . $methods . ')(?:-q([0-9]{1,2}|100))?(?:-([a-f0-9]{3}|[a-f0-9]{6}))?(?:-([a-z]+))?)/(.+)}', $path, $m)) {
@@ -322,6 +348,8 @@ class Creator
                 'silhouette' => in_array('s', $params),
                 'disable_alpha' => in_array('a', $params),
                 'no_top_offset' => in_array('n', $params),
+                'disable_copy' => in_array('c', $params),
+                'skip_small' => in_array('t', $params),
                 'image_url' => trim($m[8]),
             );
         } else {

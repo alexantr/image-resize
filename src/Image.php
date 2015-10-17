@@ -13,32 +13,42 @@ class Image
     /**
      * @var string image path relative to site base path
      */
-    private $imageUrl;
+    protected $imageUrl;
 
     /**
      * @var int default jpeg quality
      */
-    private $quality;
+    protected $quality;
 
     /**
      * @var string background color
      */
-    private $bgColor;
+    protected $bgColor;
 
     /**
      * @var bool use silhouette placeholder for missing images
      */
-    private $silhouette = false;
+    protected $silhouette = false;
 
     /**
      * @var bool disable alpha channel for png and gif
      */
-    private $disableAlpha = false;
+    protected $disableAlpha = false;
 
     /**
      * @var bool crop images w/o top offset
      */
-    private $noTopOffset = false;
+    protected $noTopOffset = false;
+
+    /**
+     * @var bool do not resize images with smaller width and height (just copy)
+     */
+    protected $skipSmall = false;
+
+    /**
+     * @var bool disable copying images
+     */
+    protected $disableCopy = false;
 
     /**
      * @param string $imageUrl
@@ -89,7 +99,7 @@ class Image
     /**
      * Enable displaying silhouette for missing images
      *
-     * @param bool $value
+     * @param bool|true $value
      *
      * @return $this
      */
@@ -102,7 +112,7 @@ class Image
     /**
      * Disable transparency for png
      *
-     * @param bool $value
+     * @param bool|true $value
      *
      * @return $this
      */
@@ -115,13 +125,39 @@ class Image
     /**
      * Disable top offset while cropping
      *
-     * @param bool $value
+     * @param bool|true $value
      *
      * @return $this
      */
     public function noTopOffset($value = true)
     {
         $this->noTopOffset = $value;
+        return $this;
+    }
+
+    /**
+     * Disable resizing smaller images
+     *
+     * @param bool|true $value
+     *
+     * @return $this
+     */
+    public function skipSmall($value = true)
+    {
+        $this->skipSmall = $value;
+        return $this;
+    }
+
+    /**
+     * Disable copying images with identical sizes
+     *
+     * @param bool|true $value
+     *
+     * @return $this
+     */
+    public function disableCopy($value = true)
+    {
+        $this->disableCopy = $value;
         return $this;
     }
 
@@ -238,9 +274,11 @@ class Image
         $resizedDir .= (($this->disableAlpha || $method == 'place') && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '');
         // additional params
         $params = '';
-        $params .= $this->silhouette ? 's' : '';
-        $params .= $this->disableAlpha ? 'a' : '';
-        $params .= $this->noTopOffset ? 'n' : '';
+        $params .= ($this->silhouette ? 's' : '');
+        $params .= ($this->disableAlpha ? 'a' : '');
+        $params .= ($this->noTopOffset ? 'n' : '');
+        $params .= ($this->disableCopy ? 'c' : '');
+        $params .= (!$this->disableCopy && $this->skipSmall ? 't' : '');
         $resizedDir .= (!empty($params) ? '-' . $params : '');
 
         return UrlHelper::getBaseUrl() . Creator::$resizedBaseDir. '/' . $resizedDir . '/' . $image_url;
