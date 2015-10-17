@@ -12,6 +12,8 @@ composer require alexantr/image-resize "~1.0@dev"
 
 ## Examples
 
+Creating URLs:
+
 ```php
 use Alexantr\ImageResize\Image;
 
@@ -24,7 +26,7 @@ $src5 = Image::init('uploads/pic.jpg')->bgColor('6af')->place(200, 200);
 
 Can use class member access on instantiation in PHP 5.4 or higher:
 
-```php
+```
 <img src="<?= (new Image('uploads/pic.jpg'))->crop(200, 200) ?>" alt="">
 ```
 
