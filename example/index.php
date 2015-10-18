@@ -17,6 +17,9 @@ test_image($src);
 $src = Image::init('uploads/Cat.jpeg')->noTopOffset()->crop(150, 150);
 test_image($src);
 
+$src = Image::init('uploads/Cat.jpeg')->noBottomOffset()->crop(150, 150);
+test_image($src);
+
 $src = Image::init('uploads/cat.gif')->fitWidth(150);
 test_image($src);
 
@@ -76,9 +79,21 @@ test_image($src);
 
 echo "<br>\n";
 
-// original size. copy?
+// original size
 
 $src = Image::init('uploads/cat.gif')->crop(100, 100);
+test_image($src);
+
+$src = Image::init('uploads/cat.gif')->disableCopy()->crop(100, 100);
+test_image($src);
+
+$src = Image::init('uploads/cat.gif')->skipSmall()->crop(50, 50);
+test_image($src);
+
+$src = Image::init('uploads/cat.gif')->skipSmall()->crop(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/cat.gif')->skipSmall()->disableCopy()->crop(150, 150);
 test_image($src);
 
 /**

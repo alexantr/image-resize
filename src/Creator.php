@@ -99,6 +99,7 @@ class Creator
         $silhouette = $params['silhouette'];
         $disable_alpha = $params['disable_alpha'];
         $no_top_offset = $params['no_top_offset'];
+        $no_bottom_offset = $params['no_bottom_offset'];
         $disable_copy = $params['disable_copy'];
         $skip_small = $params['skip_small'];
         $image_url = $params['image_url'];
@@ -151,33 +152,29 @@ class Creator
                     $dest_path = $webroot . self::$resizedBaseDir . '/' . $dir_name . '/' . $image_name;
                 }
             }
-            // already exists
+            // already exists - with php each time
             if (is_file($dest_path)) {
                 self::showImage($dest_path);
             }
         }
 
-        // can't find feault image
+        // can't find default image
         if (!is_file($orig_path)) {
             self::showBlankImage();
         }
 
-        // check mime type
-        $mime_type = FileHelper::getMimeType($orig_path);
-        if ($mime_type === null || !in_array($mime_type, self::$mimeTypes)) {
+        // check sizes
+        $size = getimagesize($orig_path);
+        if (!$size) {
+            self::showBlankImage();
+        }
+        $w = $size[0];
+        $h = $size[1];
+        if ($w == 0 || $h == 0 || empty($size['mime']) || !in_array($size['mime'], self::$mimeTypes)) {
             self::showBlankImage();
         }
 
-        // check sizes
-        $sizes = getimagesize($orig_path);
-        if (!$sizes) {
-            self::showBlankImage();
-        }
-        $w = $sizes[0];
-        $h = $sizes[1];
-        if ($w == 0 || $h == 0) {
-            self::showBlankImage();
-        }
+        $mime_type = $size['mime'];
 
         // create dir
         $dir_path = dirname($dest_path);
@@ -195,7 +192,9 @@ class Creator
                 ($method != 'fitw' && $method != 'fith' && $width == $w && $height == $h)
             ) {
                 copy($orig_path, $dest_path);
-                self::showImage($dest_path);
+                if (is_file($dest_path)) {
+                    self::showImage($dest_path);
+                }
             }
 
             // copy smaller
@@ -206,7 +205,9 @@ class Creator
                     ($method != 'fitw' && $method != 'fith' && $width >= $w && $height >= $h)
                 ) {
                     copy($orig_path, $dest_path);
-                    self::showImage($dest_path);
+                    if (is_file($dest_path)) {
+                        self::showImage($dest_path);
+                    }
                 }
             }
         }
@@ -235,7 +236,13 @@ class Creator
             $new_w = round($w * $ratio);
             $new_h = round($h * $ratio);
             $x = round(($w - $width / $ratio) / 2);
-            $y = $no_top_offset ? 0 : round(($h - $height / $ratio) / 2);
+            if ($no_top_offset) {
+                $y = 0;
+            } elseif ($no_bottom_offset) {
+                $y = floor($h - $height / $ratio);
+            } else {
+                $y = round(($h - $height / $ratio) / 2);
+            }
         } elseif ($method == 'fitw') {
             $new_w = $width;
             $new_h = $new_w / $w * $h;
@@ -302,9 +309,13 @@ class Creator
     public static function showImage($image_path, $mime_type = null)
     {
         if ($mime_type === null) {
-            $mime_type = FileHelper::getMimeType($image_path);
+            $size = getimagesize($image_path);
+            if (!$size || $size[0] == 0 || $size[1] == 0 || empty($size['mime']) || !in_array($size['mime'], self::$mimeTypes)) {
+                self::showBlankImage();
+            }
+            $mime_type = $size['mime'];
         }
-        if ($mime_type === null || !in_array($mime_type, Creator::$mimeTypes)) {
+        if (!in_array($mime_type, Creator::$mimeTypes)) {
             self::showBlankImage();
         }
         header('Content-Type: ' . $mime_type);
@@ -348,6 +359,7 @@ class Creator
                 'silhouette' => in_array('s', $params),
                 'disable_alpha' => in_array('a', $params),
                 'no_top_offset' => in_array('n', $params),
+                'no_bottom_offset' => in_array('b', $params),
                 'disable_copy' => in_array('c', $params),
                 'skip_small' => in_array('t', $params),
                 'image_url' => trim($m[8]),

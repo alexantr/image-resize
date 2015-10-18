@@ -41,6 +41,11 @@ class Image
     protected $noTopOffset = false;
 
     /**
+     * @var bool crop images w/o bottom offset
+     */
+    protected $noBottomOffset = false;
+
+    /**
      * @var bool do not resize images with smaller width and height (just copy)
      */
     protected $skipSmall = false;
@@ -132,6 +137,19 @@ class Image
     public function noTopOffset($value = true)
     {
         $this->noTopOffset = $value;
+        return $this;
+    }
+
+    /**
+     * Disable bottom offset while cropping
+     *
+     * @param bool|true $value
+     *
+     * @return $this
+     */
+    public function noBottomOffset($value = true)
+    {
+        $this->noBottomOffset = $value;
         return $this;
     }
 
@@ -276,7 +294,8 @@ class Image
         $params = '';
         $params .= ($this->silhouette ? 's' : '');
         $params .= ($this->disableAlpha ? 'a' : '');
-        $params .= ($this->noTopOffset ? 'n' : '');
+        $params .= ($method == 'crop' && $this->noTopOffset ? 'n' : '');
+        $params .= ($method == 'crop' && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '');
         $params .= ($this->disableCopy ? 'c' : '');
         $params .= (!$this->disableCopy && $this->skipSmall ? 't' : '');
         $resizedDir .= (!empty($params) ? '-' . $params : '');
