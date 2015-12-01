@@ -98,6 +98,7 @@ class Creator
         $bg_color = $params['bg_color'];
         $silhouette = $params['silhouette'];
         $disable_alpha = $params['disable_alpha'];
+        $place_upper = $params['place_upper'];
         $no_top_offset = $params['no_top_offset'];
         $no_bottom_offset = $params['no_bottom_offset'];
         $disable_copy = $params['disable_copy'];
@@ -243,6 +244,10 @@ class Creator
             } else {
                 $y = round(($h - $height / $ratio) / 2);
             }
+            // place upper
+            if ($y > 0 && $place_upper) {
+                $y = round($y / 3 * 2);
+            }
         } elseif ($method == 'fitw') {
             $new_w = $width;
             $new_h = $new_w / $w * $h;
@@ -358,6 +363,7 @@ class Creator
                 'bg_color' => ImageHelper::processColor($m[6]),
                 'silhouette' => in_array('s', $params),
                 'disable_alpha' => in_array('a', $params),
+                'place_upper' => in_array('u', $params),
                 'no_top_offset' => in_array('n', $params),
                 'no_bottom_offset' => in_array('b', $params),
                 'disable_copy' => in_array('c', $params),

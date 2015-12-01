@@ -36,6 +36,11 @@ class Image
     protected $disableAlpha = false;
 
     /**
+     * @var bool place image 2/3 upper for portraits. Do not work with enabled noTopOffset, noBottomOffset
+     */
+    protected $placeUpper = false;
+
+    /**
      * @var bool crop images w/o top offset
      */
     protected $noTopOffset = false;
@@ -124,6 +129,20 @@ class Image
     public function disableAlpha($value = true)
     {
         $this->disableAlpha = $value;
+        return $this;
+    }
+
+    /**
+     * Place image 2/3 upper for portraits. Works with crop().
+     * Do not work with enabled noTopOffset, noBottomOffset.
+     *
+     * @param bool|true $value
+     *
+     * @return $this
+     */
+    public function placeUpper($value = true)
+    {
+        $this->placeUpper = $value;
         return $this;
     }
 
@@ -294,6 +313,7 @@ class Image
         $params = '';
         $params .= ($this->silhouette ? 's' : '');
         $params .= ($this->disableAlpha ? 'a' : '');
+        $params .= ($method == 'crop' && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '');
         $params .= ($method == 'crop' && $this->noTopOffset ? 'n' : '');
         $params .= ($method == 'crop' && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '');
         $params .= ($this->disableCopy ? 'c' : '');

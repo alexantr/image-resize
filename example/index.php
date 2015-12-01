@@ -14,6 +14,9 @@ test_image($src);
 $src = Image::init('uploads/Cat.jpeg')->crop(150, 150);
 test_image($src);
 
+$src = Image::init('uploads/Cat.jpeg')->placeUpper()->crop(150, 150);
+test_image($src);
+
 $src = Image::init('uploads/Cat.jpeg')->noTopOffset()->crop(150, 150);
 test_image($src);
 
