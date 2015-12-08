@@ -2,7 +2,6 @@
 
 namespace Alexantr\ImageResize;
 
-use Alexantr\ImageResize\Helpers\FileHelper;
 use Alexantr\ImageResize\Helpers\ImageHelper;
 
 /**
