@@ -180,7 +180,7 @@ class Creator
         // create dir
         $dir_path = dirname($dest_path);
         if (!is_dir($dir_path)) {
-            if (!FileHelper::createDirectory($dir_path)) {
+            if (!@mkdir($dir_path, 0775, true)) {
                 self::showBlankImage();
             }
         }
