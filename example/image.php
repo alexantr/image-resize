@@ -8,4 +8,8 @@ if (isset($_GET['custom'])) {
     Alexantr\ImageResize\Creator::$defaultImagePath = __DIR__ . '/no-photo.png';
 }
 
+if (isset($_GET['progressive'])) {
+    Alexantr\ImageResize\Creator::$enableProgressiveJpeg = true;
+}
+
 Alexantr\ImageResize\Creator::create($webroot, $path);

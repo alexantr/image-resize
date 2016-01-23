@@ -99,6 +99,13 @@ test_image($src);
 $src = Image::init('uploads/cat.gif')->skipSmall()->disableCopy()->crop(150, 150);
 test_image($src);
 
+echo "<br>\n";
+
+// progressive jpeg
+
+$src = Image::init('uploads/folder/antelope_canyon.jpg')->quality(80)->crop(640, 480);
+test_image($src . '?progressive=1');
+
 /**
  * img tag helper
  * @param $src

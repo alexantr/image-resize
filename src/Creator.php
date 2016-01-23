@@ -69,6 +69,11 @@ class Creator
     public static $defaultSilhouettePath;
 
     /**
+     * @var bool generate progressive jpegs
+     */
+    public static $enableProgressiveJpeg = false;
+
+    /**
      * Create image based on $path
      *
      * @param string $webroot
@@ -291,6 +296,9 @@ class Creator
         } elseif ($mime_type == 'image/gif') {
             imagegif($new_im, $dest_path);
         } else {
+            if (self::$enableProgressiveJpeg) {
+                imageinterlace($new_im, 1);
+            }
             imagejpeg($new_im, $dest_path, $quality);
         }
 
