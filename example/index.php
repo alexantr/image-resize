@@ -1,6 +1,8 @@
 <?php
 require '../vendor/autoload.php';
 
+use Alexantr\ImageResize\Helpers\ImageHelper;
+use Alexantr\ImageResize\Helpers\UrlHelper;
 use Alexantr\ImageResize\Image;
 
 // base examples
@@ -8,25 +10,31 @@ use Alexantr\ImageResize\Image;
 $src = Image::init('uploads/folder/antelope_canyon.jpg')->crop(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/folder/floating_leaves.jpg')->fitHeight(150);
+// double "../"
+$url = 'uploads/folder/../../uploads/folder/floating_leaves.jpg';
+echo '<!-- ' . ImageHelper::cleanImageUrl($url) . ' -->' . "\n";
+$src = Image::init($url)->fitHeight(150);
 test_image($src);
 
-$src = Image::init('uploads/Cat.jpeg')->crop(150, 150);
+$src = Image::init('uploads/./././folder/../Cat.jpeg')->crop(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/Cat.jpeg')->placeUpper()->crop(150, 150);
+$src = Image::init('./uploads/Cat.jpeg')->placeUpper()->crop(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/Cat.jpeg')->noTopOffset()->crop(150, 150);
+$src = Image::init('example/../uploads/Cat.jpeg')->noTopOffset()->crop(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/Cat.jpeg')->noBottomOffset()->crop(150, 150);
+$src = Image::init('uploads/Cat.jpeg?foo=bar')->noBottomOffset()->crop(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/cat.gif')->fitWidth(150);
+$src = Image::init('../example/uploads/cat.gif#foobar')->fitWidth(150);
 test_image($src);
 
-$src = Image::init('uploads/Apple.png')->place(120, 150);
+// variant with path relative to document root
+$url = UrlHelper::getBaseUrl() . '/uploads/Apple.png';
+echo '<!-- ' . $url . ' -->' . "\n";
+$src = Image::init($url)->place(120, 150);
 test_image($src);
 
 // wrong url

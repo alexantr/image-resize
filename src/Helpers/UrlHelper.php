@@ -11,7 +11,7 @@ class UrlHelper
 
     /**
      * Returns the relative URL for the application.
-     * @return string
+     * @return string Path without ending slash
      * @throws \Exception
      */
     public static function getBaseUrl()

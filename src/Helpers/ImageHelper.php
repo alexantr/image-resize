@@ -58,8 +58,14 @@ class ImageHelper
     public static function cleanImageUrl($image_url)
     {
         $image_url = str_replace('\\', '/', $image_url);
-        $image_url = str_replace(array('../', '/./'), array('', '/'), $image_url);
         $image_url = preg_replace('{^\./}', '', $image_url);
+        while (strpos($image_url, '/./') !== false) {
+            $image_url = str_replace('/./', '/', $image_url); // remove "/./"
+        }
+        while (preg_match('{(^|/)[^/]+/\.\./}', $image_url)) {
+            $image_url = preg_replace('{(^|/)[^/]+/\.\./}', '$1', $image_url); // remove "folder/../"
+        }
+        $image_url = preg_replace('{^\.\./[^/]+/}', '', $image_url); // remove "../folder/" from beginning
         $image_url_exploded = explode('#', $image_url);
         $image_url_exploded = explode('?', $image_url_exploded[0]);
         $image_url = $image_url_exploded[0];

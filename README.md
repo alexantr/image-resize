@@ -7,7 +7,7 @@ Image resizing library. Creates images on demand using GD.
 Install through [Composer](http://getcomposer.org/):
 
 ```
-composer require alexantr/image-resize "~1.0@dev"
+composer require alexantr/image-resize "~1.0"
 ```
 
 ## Examples
@@ -21,7 +21,7 @@ $src1 = Image::init('uploads/pic.jpg')->crop(200, 200);
 $src2 = Image::init('uploads/pic.jpg')->silhouette()->quality(95)->fit(200, 200);
 $src3 = Image::init('uploads/pic.jpg')->fitWidth(200);
 $src4 = Image::init('uploads/pic.jpg')->fitHeight(200);
-$src5 = Image::init('uploads/pic.jpg')->bgColor('6af')->place(200, 200);
+$src5 = Image::init('/site/uploads/pic.jpg')->bgColor('6af')->place(200, 200);
 ```
 
 Can use class member access on instantiation in PHP 5.4 or higher:
