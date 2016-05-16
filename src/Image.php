@@ -296,11 +296,9 @@ class Image
             ImageHelper::getBlankImageUrl();
         }
 
-        // get pathinfo
-        $destPathInfo = pathinfo($image_url);
-
         // check extension
-        $destExt = strtolower($destPathInfo['extension']);
+        $destExt = pathinfo($image_url, PATHINFO_EXTENSION);
+        $destExt = strtolower($destExt);
         if (empty($destExt) || !in_array($destExt, array('jpeg', 'jpg', 'png', 'gif'))) {
             return ImageHelper::getBlankImageUrl();
         }

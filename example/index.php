@@ -41,6 +41,10 @@ test_image($src);
 $src = Image::init('folder/foo.bar')->crop(150, 150);
 test_image($src);
 
+// wrong url - no extension
+$src = Image::init('foobar')->crop(150, 150);
+test_image($src);
+
 echo "<br>\n";
 
 // quality examples
