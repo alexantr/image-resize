@@ -189,6 +189,33 @@ class Creator
             }
         }
 
+        $rotate = 0;
+
+        // try to read exif orientation
+        if (function_exists('exif_read_data')) {
+            $exif = exif_read_data($orig_path);
+            if (!empty($exif['Orientation'])) {
+                switch ($exif['Orientation']) {
+                    case 3:
+                        $rotate = 180;
+                        break;
+                    case 6:
+                        $rotate = -90;
+                        break;
+                    case 8:
+                        $rotate = 90;
+                        break;
+                }
+            }
+        }
+
+        // switch width & height
+        if ($rotate == 90 || $rotate == -90) {
+            $old_w = $w;
+            $w = $h;
+            $h = $old_w;
+        }
+
         if (!$disable_copy) {
             // copy with identical sizes
             if (
@@ -229,6 +256,11 @@ class Creator
 
         if ($im === false) {
             self::showBlankImage();
+        }
+
+        // rotate original
+        if ($rotate != 0) {
+            $im = imagerotate($im, $rotate, 0);
         }
 
         $dst_x = 0;
