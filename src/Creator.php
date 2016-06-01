@@ -192,7 +192,7 @@ class Creator
         $rotate = 0;
 
         // try to read exif orientation
-        if (function_exists('exif_read_data')) {
+        if (function_exists('exif_read_data') && $mime_type == 'image/jpeg') {
             $exif = exif_read_data($orig_path);
             if (!empty($exif['Orientation'])) {
                 switch ($exif['Orientation']) {
