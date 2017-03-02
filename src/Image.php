@@ -58,9 +58,13 @@ class Image
     protected $disableCopy = false;
 
     /**
+     * @var bool force saving to jpeg
+     */
+    protected $asJpeg = false;
+
+    /**
      * @param string $imageUrl
-     *
-     * @return Image
+     * @return self
      */
     public static function init($imageUrl)
     {
@@ -178,6 +182,17 @@ class Image
     }
 
     /**
+     * Force saving PNGs and GIFs to jpeg
+     * @param bool|true $value
+     * @return $this
+     */
+    public function asJpeg($value = true)
+    {
+        $this->asJpeg = $value;
+        return $this;
+    }
+
+    /**
      * Crop
      * @param int $width
      * @param int $height
@@ -264,27 +279,37 @@ class Image
         }
 
         // check extension
-        $destExt = pathinfo($image_url, PATHINFO_EXTENSION);
-        $destExt = strtolower($destExt);
-        if (empty($destExt) || !in_array($destExt, array('jpeg', 'jpg', 'png', 'gif'))) {
+        $dest_ext = pathinfo($image_url, PATHINFO_EXTENSION);
+        $dest_ext = strtolower($dest_ext);
+        if (empty($dest_ext) || !in_array($dest_ext, array('jpeg', 'jpg', 'png', 'gif'))) {
             return Helper::getBlankImageUrl();
         }
 
+        // force jpeg
+        if ($this->asJpeg) {
+            if (!in_array($dest_ext, array('jpeg', 'jpg'))) {
+                $image_url .= '.jpg';
+            } else {
+                $this->asJpeg = false;
+            }
+        }
+
         // set dir name with all params
-        $resizedDir = "{$width}-{$height}-{$method}";
-        $resizedDir .= ($this->quality != Creator::$defaultQuality ? "-q{$this->quality}" : '');
-        $resizedDir .= (($this->disableAlpha || $method == 'place') && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '');
+        $resized_dir = "{$width}-{$height}-{$method}";
+        $resized_dir .= ($this->quality != Creator::$defaultQuality ? "-q{$this->quality}" : '');
+        $resized_dir .= (($this->disableAlpha || $method == 'place') && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '');
         // additional params
         $params = '';
         $params .= ($this->silhouette ? 's' : '');
         $params .= ($this->disableAlpha ? 'a' : '');
+        $params .= ($this->asJpeg ? 'j' : '');
         $params .= ($method == 'crop' && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '');
         $params .= ($method == 'crop' && $this->noTopOffset ? 'n' : '');
         $params .= ($method == 'crop' && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '');
         $params .= ($this->disableCopy ? 'c' : '');
         $params .= (!$this->disableCopy && $this->skipSmall ? 't' : '');
-        $resizedDir .= (!empty($params) ? '-' . $params : '');
+        $resized_dir .= (!empty($params) ? '-' . $params : '');
 
-        return Helper::getBaseUrl() . Creator::$resizedBaseDir . '/' . $resizedDir . '/' . $image_url;
+        return Helper::getBaseUrl() . Creator::$resizedBaseDir . '/' . $resized_dir . '/' . $image_url;
     }
 }

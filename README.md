@@ -12,6 +12,8 @@ composer require alexantr/image-resize "~1.0"
 
 ## Examples
 
+See full list of examples in `example` folder.
+
 Creating URLs:
 
 ```php

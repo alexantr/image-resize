@@ -45,6 +45,39 @@ class Helper
     }
 
     /**
+     * Get params from path
+     * @param string $path
+     * @return array|bool
+     */
+    public static function parsePath($path)
+    {
+        $methods = implode('|', Creator::$methods);
+        if (preg_match('{^(([0-9]{1,4})-([0-9]{1,4})-(' . $methods . ')(?:-q([0-9]{1,2}|100))?(?:-([a-f0-9]{3}|[a-f0-9]{6}))?(?:-([a-z]+))?)/(.+)}', $path, $m)) {
+            $params = $m[7];
+            $params = str_split($params);
+            return array(
+                'dir_name' => $m[1],
+                'width' => (int)$m[2],
+                'height' => (int)$m[3],
+                'method' => $m[4],
+                'quality' => ($m[5] !== '' ? Helper::processQuality($m[5]) : Creator::$defaultQuality),
+                'bg_color' => Helper::processColor($m[6]),
+                'silhouette' => in_array('s', $params),
+                'disable_alpha' => in_array('a', $params),
+                'as_jpeg' => in_array('j', $params),
+                'place_upper' => in_array('u', $params),
+                'no_top_offset' => in_array('n', $params),
+                'no_bottom_offset' => in_array('b', $params),
+                'disable_copy' => in_array('c', $params),
+                'skip_small' => in_array('t', $params),
+                'image_url' => trim($m[8]),
+            );
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Clean url
      * @param string $image_url
      * @return string

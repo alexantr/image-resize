@@ -85,7 +85,7 @@ class Creator
         }
 
         // get params from path
-        $params = self::parsePath($path);
+        $params = Helper::parsePath($path);
         if (!is_array($params)) {
             self::showBlankImage();
         }
@@ -98,6 +98,7 @@ class Creator
         $bg_color = $params['bg_color'];
         $silhouette = $params['silhouette'];
         $disable_alpha = $params['disable_alpha'];
+        $as_jpeg = $params['as_jpeg'];
         $place_upper = $params['place_upper'];
         $no_top_offset = $params['no_top_offset'];
         $no_bottom_offset = $params['no_bottom_offset'];
@@ -129,6 +130,16 @@ class Creator
 
         // original image abs path
         $orig_path = $webroot . '/' . $image_url;
+
+        // try to deal with jpeg forcing
+        if (!is_file($orig_path) && $as_jpeg) {
+            $orig_dirname = dirname($orig_path);
+            $filename = pathinfo($orig_path, PATHINFO_FILENAME);
+            $orig_ext = pathinfo($filename, PATHINFO_EXTENSION);
+            if (!empty($orig_ext) && in_array($orig_ext, array('jpeg', 'jpg', 'png', 'gif')) && is_file($orig_dirname . '/' . $filename)) {
+                $orig_path = $orig_dirname . '/' . $filename;
+            }
+        }
 
         // create paths for missing image
         if (!is_file($orig_path)) {
@@ -189,7 +200,7 @@ class Creator
 
         // try to read exif orientation
         if (function_exists('exif_read_data') && $mime_type == 'image/jpeg') {
-            $exif = exif_read_data($orig_path);
+            $exif = @exif_read_data($orig_path);
             if (!empty($exif['Orientation'])) {
                 switch ($exif['Orientation']) {
                     case 3:
@@ -307,7 +318,7 @@ class Creator
         // copying
         $rgb = Helper::hex2rgb($bg_color);
         $new_im = imagecreatetruecolor($width, $height);
-        if (!$disable_alpha && $mime_type == 'image/png') {
+        if (!$disable_alpha && !$as_jpeg && $mime_type == 'image/png') {
             imagealphablending($new_im, false);
             imagesavealpha($new_im, true);
             $color = imagecolorallocatealpha($new_im, $rgb['r'], $rgb['g'], $rgb['b'], 127);
@@ -319,9 +330,9 @@ class Creator
         imagecopyresampled($new_im, $im, $dst_x, $dst_y, $x, $y, $new_w, $new_h, $w, $h);
 
         // saving
-        if ($mime_type == 'image/png') {
+        if ($mime_type == 'image/png' && !$as_jpeg) {
             imagepng($new_im, $dest_path, 9);
-        } elseif ($mime_type == 'image/gif') {
+        } elseif ($mime_type == 'image/gif' && !$as_jpeg) {
             imagegif($new_im, $dest_path);
         } else {
             if (self::$enableProgressiveJpeg) {
@@ -354,7 +365,7 @@ class Creator
             }
             $mime_type = $size['mime'];
         }
-        if (!in_array($mime_type, Creator::$mimeTypes)) {
+        if (!in_array($mime_type, self::$mimeTypes)) {
             self::showBlankImage();
         }
         header('Content-Type: ' . $mime_type);
@@ -373,37 +384,5 @@ class Creator
         header('Content-Length: ' . mb_strlen($image, '8bit'));
         echo $image;
         exit;
-    }
-
-    /**
-     * Get params from path
-     * @param string $path
-     * @return array|bool
-     */
-    protected static function parsePath($path)
-    {
-        $methods = implode('|', Creator::$methods);
-        if (preg_match('{^(([0-9]{1,4})-([0-9]{1,4})-(' . $methods . ')(?:-q([0-9]{1,2}|100))?(?:-([a-f0-9]{3}|[a-f0-9]{6}))?(?:-([a-z]+))?)/(.+)}', $path, $m)) {
-            $params = $m[7];
-            $params = str_split($params);
-            return array(
-                'dir_name' => $m[1],
-                'width' => (int)$m[2],
-                'height' => (int)$m[3],
-                'method' => $m[4],
-                'quality' => ($m[5] !== '' ? Helper::processQuality($m[5]) : Creator::$defaultQuality),
-                'bg_color' => Helper::processColor($m[6]),
-                'silhouette' => in_array('s', $params),
-                'disable_alpha' => in_array('a', $params),
-                'place_upper' => in_array('u', $params),
-                'no_top_offset' => in_array('n', $params),
-                'no_bottom_offset' => in_array('b', $params),
-                'disable_copy' => in_array('c', $params),
-                'skip_small' => in_array('t', $params),
-                'image_url' => trim($m[8]),
-            );
-        } else {
-            return false;
-        }
     }
 }

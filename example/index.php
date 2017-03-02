@@ -117,6 +117,16 @@ echo "<br>\n";
 $src = Image::init('uploads/folder/antelope_canyon.jpg')->quality(80)->crop(640, 480);
 test_image($src . '?progressive=1');
 
+echo "<br>\n";
+
+// force jpeg
+
+$src = Image::init('uploads/Apple.png')->asJpeg()->quality(60)->place(320, 240);
+test_image($src);
+
+$src = Image::init('uploads/cat.gif')->asJpeg()->quality(80)->disableCopy()->fitWidth(100);
+test_image($src);
+
 /**
  * img tag helper
  * @param $src
