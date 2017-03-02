@@ -1,8 +1,7 @@
 <?php
 require '../vendor/autoload.php';
 
-use Alexantr\ImageResize\Helpers\ImageHelper;
-use Alexantr\ImageResize\Helpers\UrlHelper;
+use Alexantr\ImageResize\Helper;
 use Alexantr\ImageResize\Image;
 
 // base examples
@@ -12,7 +11,7 @@ test_image($src);
 
 // double "../"
 $url = 'uploads/folder/../../uploads/folder/floating_leaves.jpg';
-echo '<!-- ' . ImageHelper::cleanImageUrl($url) . ' -->' . "\n";
+echo '<!-- ' . Helper::cleanImageUrl($url) . ' -->' . "\n";
 $src = Image::init($url)->fitHeight(150);
 test_image($src);
 
@@ -32,7 +31,7 @@ $src = Image::init('../example/uploads/cat.gif#foobar')->fitWidth(150);
 test_image($src);
 
 // variant with path relative to document root
-$url = UrlHelper::getBaseUrl() . '/uploads/Apple.png';
+$url = Helper::getBaseUrl() . '/uploads/Apple.png';
 echo '<!-- ' . $url . ' -->' . "\n";
 $src = Image::init($url)->place(120, 150);
 test_image($src);

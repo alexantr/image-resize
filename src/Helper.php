@@ -1,22 +1,19 @@
 <?php
 
-namespace Alexantr\ImageResize\Helpers;
+namespace Alexantr\ImageResize;
 
-use Alexantr\ImageResize\Creator;
-
-class ImageHelper
+class Helper
 {
     /**
      * @return string
      */
     public static function getBlankImageUrl()
     {
-        return UrlHelper::getBaseUrl() . Creator::$resizedBaseDir . '/' . Creator::BLANK_IMAGE_NAME;
+        return self::getBaseUrl() . Creator::$resizedBaseDir . '/' . Creator::BLANK_IMAGE_NAME;
     }
 
     /**
      * @param int|string $quality
-     *
      * @return int
      */
     public static function processQuality($quality)
@@ -33,7 +30,6 @@ class ImageHelper
 
     /**
      * @param string $hex
-     *
      * @return string 3 or 6 signs
      */
     public static function processColor($hex)
@@ -50,9 +46,7 @@ class ImageHelper
 
     /**
      * Clean url
-     *
      * @param string $image_url
-     *
      * @return string
      */
     public static function cleanImageUrl($image_url)
@@ -70,7 +64,7 @@ class ImageHelper
         $image_url_exploded = explode('?', $image_url_exploded[0]);
         $image_url = $image_url_exploded[0];
         if (strpos($image_url, '/') === 0) {
-            $baseUrl = UrlHelper::getBaseUrl();
+            $baseUrl = self::getBaseUrl();
             if (!empty($baseUrl) && strpos($image_url, $baseUrl) === 0) {
                 $image_url = mb_substr($image_url, mb_strlen($baseUrl));
             }
@@ -81,9 +75,7 @@ class ImageHelper
 
     /**
      * Convert hex string to rgb array
-     *
      * @param string $hex
-     *
      * @return array
      */
     public static function hex2rgb($hex)
@@ -101,4 +93,36 @@ class ImageHelper
         return array('r' => $r, 'g' => $g, 'b' => $b);
     }
 
+    /**
+     * @var string base relative URL
+     */
+    private static $baseUrl;
+
+    /**
+     * Returns the relative URL for the application.
+     * @return string Path without ending slash
+     * @throws \Exception
+     */
+    public static function getBaseUrl()
+    {
+        if (self::$baseUrl === null) {
+            $scriptFile = $_SERVER['SCRIPT_FILENAME'];
+            $scriptName = basename($scriptFile);
+            if (basename($_SERVER['SCRIPT_NAME']) === $scriptName) {
+                $scriptUrl = $_SERVER['SCRIPT_NAME'];
+            } elseif (basename($_SERVER['PHP_SELF']) === $scriptName) {
+                $scriptUrl = $_SERVER['PHP_SELF'];
+            } elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName) {
+                $scriptUrl = $_SERVER['ORIG_SCRIPT_NAME'];
+            } elseif (($pos = strpos($_SERVER['PHP_SELF'], '/' . $scriptName)) !== false) {
+                $scriptUrl = substr($_SERVER['SCRIPT_NAME'], 0, $pos) . '/' . $scriptName;
+            } elseif (!empty($_SERVER['DOCUMENT_ROOT']) && strpos($scriptFile, $_SERVER['DOCUMENT_ROOT']) === 0) {
+                $scriptUrl = str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $scriptFile));
+            } else {
+                throw new \Exception('Unable to determine the entry script URL.');
+            }
+            self::$baseUrl = rtrim(dirname($scriptUrl), '\\/');
+        }
+        return self::$baseUrl;
+    }
 }

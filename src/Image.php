@@ -2,9 +2,6 @@
 
 namespace Alexantr\ImageResize;
 
-use Alexantr\ImageResize\Helpers\ImageHelper;
-use Alexantr\ImageResize\Helpers\UrlHelper;
-
 /**
  * Create URL for ImageCreator
  */
@@ -82,35 +79,29 @@ class Image
 
     /**
      * Set jpeg quality
-     *
      * @param int|string $quality
-     *
      * @return $this
      */
     public function quality($quality)
     {
-        $this->quality = ImageHelper::processQuality($quality);
+        $this->quality = Helper::processQuality($quality);
         return $this;
     }
 
     /**
      * Set background color
-     *
      * @param string $hex
-     *
      * @return $this
      */
     public function bgColor($hex)
     {
-        $this->bgColor = ImageHelper::processColor($hex);
+        $this->bgColor = Helper::processColor($hex);
         return $this;
     }
 
     /**
      * Enable displaying silhouette for missing images
-     *
      * @param bool|true $value
-     *
      * @return $this
      */
     public function silhouette($value = true)
@@ -121,9 +112,7 @@ class Image
 
     /**
      * Disable transparency for png
-     *
      * @param bool|true $value
-     *
      * @return $this
      */
     public function disableAlpha($value = true)
@@ -134,10 +123,8 @@ class Image
 
     /**
      * Place image 2/3 upper for portraits. Works with crop().
-     * Do not work with enabled noTopOffset, noBottomOffset.
-     *
+     * Don't working with enabled noTopOffset, noBottomOffset.
      * @param bool|true $value
-     *
      * @return $this
      */
     public function placeUpper($value = true)
@@ -148,9 +135,7 @@ class Image
 
     /**
      * Disable top offset while cropping
-     *
      * @param bool|true $value
-     *
      * @return $this
      */
     public function noTopOffset($value = true)
@@ -161,9 +146,7 @@ class Image
 
     /**
      * Disable bottom offset while cropping
-     *
      * @param bool|true $value
-     *
      * @return $this
      */
     public function noBottomOffset($value = true)
@@ -174,9 +157,7 @@ class Image
 
     /**
      * Disable resizing smaller images
-     *
      * @param bool|true $value
-     *
      * @return $this
      */
     public function skipSmall($value = true)
@@ -187,9 +168,7 @@ class Image
 
     /**
      * Disable copying images with identical sizes
-     *
      * @param bool|true $value
-     *
      * @return $this
      */
     public function disableCopy($value = true)
@@ -200,10 +179,8 @@ class Image
 
     /**
      * Crop
-     *
      * @param int $width
      * @param int $height
-     *
      * @return string
      */
     public function crop($width, $height)
@@ -213,10 +190,8 @@ class Image
 
     /**
      * Fit
-     *
      * @param int $width
      * @param int $height
-     *
      * @return string
      */
     public function fit($width, $height)
@@ -226,9 +201,7 @@ class Image
 
     /**
      * Fit width
-     *
      * @param int $width
-     *
      * @return string
      */
     public function fitWidth($width)
@@ -238,9 +211,7 @@ class Image
 
     /**
      * Fit height
-     *
      * @param int $height
-     *
      * @return string
      */
     public function fitHeight($height)
@@ -250,10 +221,8 @@ class Image
 
     /**
      * Place
-     *
      * @param int $width
      * @param int $height
-     *
      * @return string
      */
     public function place($width, $height)
@@ -263,11 +232,9 @@ class Image
 
     /**
      * Resize - base method
-     *
      * @param string $method
      * @param int $width
      * @param int $height
-     *
      * @return string
      */
     public function resize($method, $width, $height)
@@ -282,7 +249,7 @@ class Image
             $width > Creator::$maxSize || $height > Creator::$maxSize ||
             !in_array($method, Creator::$methods)
         ) {
-            return ImageHelper::getBlankImageUrl();
+            return Helper::getBlankImageUrl();
         }
 
         // absolute link
@@ -291,16 +258,16 @@ class Image
         }
 
         // clean url
-        $image_url = ImageHelper::cleanImageUrl($this->imageUrl);
+        $image_url = Helper::cleanImageUrl($this->imageUrl);
         if (empty($image_url)) {
-            ImageHelper::getBlankImageUrl();
+            Helper::getBlankImageUrl();
         }
 
         // check extension
         $destExt = pathinfo($image_url, PATHINFO_EXTENSION);
         $destExt = strtolower($destExt);
         if (empty($destExt) || !in_array($destExt, array('jpeg', 'jpg', 'png', 'gif'))) {
-            return ImageHelper::getBlankImageUrl();
+            return Helper::getBlankImageUrl();
         }
 
         // set dir name with all params
@@ -318,6 +285,6 @@ class Image
         $params .= (!$this->disableCopy && $this->skipSmall ? 't' : '');
         $resizedDir .= (!empty($params) ? '-' . $params : '');
 
-        return UrlHelper::getBaseUrl() . Creator::$resizedBaseDir. '/' . $resizedDir . '/' . $image_url;
+        return Helper::getBaseUrl() . Creator::$resizedBaseDir . '/' . $resizedDir . '/' . $image_url;
     }
 }
