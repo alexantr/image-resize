@@ -4,6 +4,31 @@ require '../vendor/autoload.php';
 use Alexantr\ImageResize\Helper;
 use Alexantr\ImageResize\Image;
 
+/**
+ * img tag helper
+ * @param $src
+ */
+function test_image($src)
+{
+    echo '<img src="' . $src . '" alt="">' . "\n";
+}
+
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>examples</title>
+    <style>
+        img {
+            border: 1px solid #999;
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAKklEQVR42mL5//8/Azbw+PFjrOJMDCSCUQ3EABZc4S0rKzsaSvTTABBgAMyfCMsY4B9iAAAAAElFTkSuQmCC') repeat 0 0;
+        }
+    </style>
+</head>
+<body>
+<?php
+
 // base examples
 
 $src = Image::init('uploads/folder/antelope_canyon.jpg')->crop(150, 150);
@@ -127,11 +152,25 @@ test_image($src);
 $src = Image::init('uploads/cat.gif')->asJpeg()->quality(80)->disableCopy()->fitWidth(100);
 test_image($src);
 
-/**
- * img tag helper
- * @param $src
- */
-function test_image($src)
-{
-    echo '<img src="' . $src . '" alt="" style="border: 1px solid #000;">' . "\n";
-}
+echo "<br>\n";
+
+// check crop offset
+
+$src = Image::init('uploads/check_offset.jpg')->crop(82, 100);
+test_image($src);
+
+$src = Image::init('uploads/check_offset.jpg')->crop(83, 100);
+test_image($src);
+
+$src = Image::init('uploads/check_offset.jpg')->crop(84, 100);
+test_image($src);
+
+$src = Image::init('uploads/check_offset.jpg')->crop(85, 100);
+test_image($src);
+
+$src = Image::init('uploads/check_offset.jpg')->crop(86, 100);
+test_image($src);
+
+?>
+</body>
+</html>

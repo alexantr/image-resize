@@ -180,9 +180,9 @@ class Creator
         if (!$size) {
             self::showBlankImage();
         }
-        $w = $size[0];
-        $h = $size[1];
-        if ($w == 0 || $h == 0 || empty($size['mime']) || !in_array($size['mime'], self::$mimeTypes)) {
+        $src_w = $size[0];
+        $src_h = $size[1];
+        if ($src_w == 0 || $src_h == 0 || empty($size['mime']) || !in_array($size['mime'], self::$mimeTypes)) {
             self::showBlankImage();
         }
 
@@ -218,17 +218,17 @@ class Creator
 
         // switch width & height
         if ($rotate == 90 || $rotate == -90) {
-            $old_w = $w;
-            $w = $h;
-            $h = $old_w;
+            $old_w = $src_w;
+            $src_w = $src_h;
+            $src_h = $old_w;
         }
 
         if (!$disable_copy) {
             // copy with identical sizes
             if (
-                ($method == 'fitw' && $width == $w) ||
-                ($method == 'fith' && $height == $h) ||
-                ($method != 'fitw' && $method != 'fith' && $width == $w && $height == $h)
+                ($method == 'fitw' && $width == $src_w) ||
+                ($method == 'fith' && $height == $src_h) ||
+                ($method != 'fitw' && $method != 'fith' && $width == $src_w && $height == $src_h)
             ) {
                 copy($orig_path, $dest_path);
                 if (is_file($dest_path)) {
@@ -239,9 +239,9 @@ class Creator
             // copy smaller
             if ($skip_small) {
                 if (
-                    ($method == 'fitw' && $width >= $w) ||
-                    ($method == 'fith' && $height >= $h) ||
-                    ($method != 'fitw' && $method != 'fith' && $width >= $w && $height >= $h)
+                    ($method == 'fitw' && $width >= $src_w) ||
+                    ($method == 'fith' && $height >= $src_h) ||
+                    ($method != 'fitw' && $method != 'fith' && $width >= $src_w && $height >= $src_h)
                 ) {
                     copy($orig_path, $dest_path);
                     if (is_file($dest_path)) {
@@ -276,16 +276,16 @@ class Creator
         $y = 0;
 
         if ($method == 'crop') {
-            $ratio = max($width / $w, $height / $h);
-            $new_w = round($w * $ratio);
-            $new_h = round($h * $ratio);
-            $x = round(($w - $width / $ratio) / 2);
+            $ratio = max($width / $src_w, $height / $src_h);
+            $new_w = round($src_w * $ratio);
+            $new_h = round($src_h * $ratio);
+            $x = floor(($src_w - $width / $ratio) / 2);
             if ($no_top_offset) {
                 $y = 0;
             } elseif ($no_bottom_offset) {
-                $y = floor($h - $height / $ratio);
+                $y = floor($src_h - $height / $ratio);
             } else {
-                $y = round(($h - $height / $ratio) / 2);
+                $y = round(($src_h - $height / $ratio) / 2);
             }
             // place upper
             if ($y > 0 && $place_upper) {
@@ -293,24 +293,24 @@ class Creator
             }
         } elseif ($method == 'fitw') {
             $new_w = $width;
-            $new_h = $new_w / $w * $h;
+            $new_h = $new_w / $src_w * $src_h;
             $width = $new_w;
             $height = $new_h;
         } elseif ($method == 'fith') {
             $new_h = $height;
-            $new_w = $new_h * $w / $h;
+            $new_w = $new_h * $src_w / $src_h;
             $width = $new_w;
             $height = $new_h;
         } elseif ($method == 'place') {
-            $ratio = min($width / $w, $height / $h);
-            $new_w = round($w * $ratio);
-            $new_h = round($h * $ratio);
+            $ratio = min($width / $src_w, $height / $src_h);
+            $new_w = round($src_w * $ratio);
+            $new_h = round($src_h * $ratio);
             $dst_x = round(($width - $new_w) / 2);
             $dst_y = round(($height - $new_h) / 2);
         } else {
-            $ratio = min($width / $w, $height / $h);
-            $new_w = round($w * $ratio);
-            $new_h = round($h * $ratio);
+            $ratio = min($width / $src_w, $height / $src_h);
+            $new_w = round($src_w * $ratio);
+            $new_h = round($src_h * $ratio);
             $width = $new_w;
             $height = $new_h;
         }
@@ -327,7 +327,7 @@ class Creator
             $color = imagecolorallocate($new_im, $rgb['r'], $rgb['g'], $rgb['b']);
             imagefill($new_im, 0, 0, $color);
         }
-        imagecopyresampled($new_im, $im, $dst_x, $dst_y, $x, $y, $new_w, $new_h, $w, $h);
+        imagecopyresampled($new_im, $im, $dst_x, $dst_y, $x, $y, $new_w, $new_h, $src_w, $src_h);
 
         // saving
         if ($mime_type == 'image/png' && !$as_jpeg) {
