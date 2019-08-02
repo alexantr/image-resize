@@ -72,6 +72,13 @@ class Creator
     public static $enableProgressiveJpeg = false;
 
     /**
+     * @var int|null mode for imagescale()
+     * @see https://www.php.net/manual/en/function.imagescale.php
+     * @see https://www.php.net/manual/ru/function.imagesetinterpolation.php
+     */
+    public static $imagescaleMode = null;
+
+    /**
      * Create image based on $path
      * @param string $webroot
      * @param string $path
@@ -327,7 +334,13 @@ class Creator
             $color = imagecolorallocate($new_im, $rgb['r'], $rgb['g'], $rgb['b']);
             imagefill($new_im, 0, 0, $color);
         }
-        imagecopyresampled($new_im, $im, $dst_x, $dst_y, $x, $y, $new_w, $new_h, $src_w, $src_h);
+        if (function_exists('imagescale')) {
+            $mode = self::$imagescaleMode !== null ? self::$imagescaleMode : IMG_MITCHELL;
+            $scaled = imagescale($im, $new_w, $new_h, $mode);
+            imagecopy($new_im, $scaled, $dst_x, $dst_y, 0, 0, $new_w, $new_h);
+        } else {
+            imagecopyresampled($new_im, $im, $dst_x, $dst_y, $x, $y, $new_w, $new_h, $src_w, $src_h);
+        }
 
         // saving
         if ($mime_type == 'image/png' && !$as_jpeg) {
