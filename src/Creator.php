@@ -11,6 +11,12 @@ class Creator
     const DEFAULT_IMAGE_NAME = 'no-image.png';
     const DEFAULT_SILHOUETTE_NAME = 'no-image-person.png';
 
+    const RESIZE_CROP = 'crop';
+    const RESIZE_PLACE = 'place';
+    const RESIZE_FIT_WIDTH = 'fitw';
+    const RESIZE_FIT_HEIGHT = 'fith';
+    const RESIZE_FIT_ALL = 'fit';
+
     /**
      * @var string base directory where resized images are saving
      */
@@ -54,7 +60,13 @@ class Creator
     /**
      * @var array allowed methods
      */
-    public static $methods = array('crop', 'fit', 'fitw', 'fith', 'place');
+    public static $methods = array(
+        self::RESIZE_CROP,
+        self::RESIZE_FIT_ALL,
+        self::RESIZE_FIT_WIDTH,
+        self::RESIZE_FIT_HEIGHT,
+        self::RESIZE_PLACE,
+    );
 
     /**
      * @var string custom path to default image
@@ -72,17 +84,14 @@ class Creator
     public static $enableProgressiveJpeg = false;
 
     /**
-     * @var int|null mode for imagescale()
-     * @see https://www.php.net/manual/en/function.imagescale.php
-     * @see https://www.php.net/manual/ru/function.imagesetinterpolation.php
-     * Set to false to disable usage of imagescale()
+     * @var bool force imagick disabled
      */
-    public static $imagescaleMode = null;
+    public static $imagickDisabled = false;
 
     /**
      * @var int PNG compression level (0..9)
      */
-    public static $pngCompressionLevel = 9;
+    public static $gdPngCompressionLevel = 9;
 
     /**
      * Create image based on $path
@@ -209,28 +218,18 @@ class Creator
             }
         }
 
-        $rotate = 0;
+        $orientation = 1;
 
         // try to read exif orientation
         if (function_exists('exif_read_data') && $mime_type == 'image/jpeg') {
             $exif = @exif_read_data($orig_path);
             if (!empty($exif['Orientation'])) {
-                switch ($exif['Orientation']) {
-                    case 3:
-                        $rotate = 180;
-                        break;
-                    case 6:
-                        $rotate = -90;
-                        break;
-                    case 8:
-                        $rotate = 90;
-                        break;
-                }
+                $orientation = $exif['Orientation'];
             }
         }
 
         // switch width & height
-        if ($rotate == 90 || $rotate == -90) {
+        if (in_array($orientation, array(5, 6, 7, 8))) {
             $old_w = $src_w;
             $src_w = $src_h;
             $src_h = $old_w;
@@ -239,9 +238,9 @@ class Creator
         if (!$disable_copy) {
             // copy with identical sizes
             if (
-                ($method == 'fitw' && $width == $src_w) ||
-                ($method == 'fith' && $height == $src_h) ||
-                ($method != 'fitw' && $method != 'fith' && $width == $src_w && $height == $src_h)
+                ($method == self::RESIZE_FIT_WIDTH && $width == $src_w) ||
+                ($method == self::RESIZE_FIT_HEIGHT && $height == $src_h) ||
+                ($method != self::RESIZE_FIT_WIDTH && $method != self::RESIZE_FIT_HEIGHT && $width == $src_w && $height == $src_h)
             ) {
                 copy($orig_path, $dest_path);
                 if (is_file($dest_path)) {
@@ -252,9 +251,9 @@ class Creator
             // copy smaller
             if ($skip_small) {
                 if (
-                    ($method == 'fitw' && $width >= $src_w) ||
-                    ($method == 'fith' && $height >= $src_h) ||
-                    ($method != 'fitw' && $method != 'fith' && $width >= $src_w && $height >= $src_h)
+                    ($method == self::RESIZE_FIT_WIDTH && $width >= $src_w) ||
+                    ($method == self::RESIZE_FIT_HEIGHT && $height >= $src_h) ||
+                    ($method != self::RESIZE_FIT_WIDTH && $method != self::RESIZE_FIT_HEIGHT && $width >= $src_w && $height >= $src_h)
                 ) {
                     copy($orig_path, $dest_path);
                     if (is_file($dest_path)) {
@@ -264,6 +263,139 @@ class Creator
             }
         }
 
+        $dst_x = 0;
+        $dst_y = 0;
+        $crop_x = 0;
+        $crop_y = 0;
+        $crop_y_init = 0;
+
+        if ($method == self::RESIZE_CROP) {
+            $ratio = max($width / $src_w, $height / $src_h);
+            $new_w = round($src_w * $ratio);
+            $new_h = round($src_h * $ratio);
+            $crop_x = floor(($src_w - $width / $ratio) / 2);
+            $crop_y_init = round(($src_h - $height / $ratio) / 2);
+            if ($no_top_offset) {
+                $crop_y = 0;
+            } elseif ($no_bottom_offset) {
+                $crop_y = floor($src_h - $height / $ratio);
+            } else {
+                $crop_y = $crop_y_init;
+                // place upper
+                if ($crop_y > 0 && $place_upper) {
+                    $crop_y = round($crop_y / 3 * 2);
+                }
+            }
+        } elseif ($method == self::RESIZE_FIT_WIDTH) {
+            $new_w = $width;
+            $new_h = $new_w / $src_w * $src_h;
+            $width = $new_w;
+            $height = $new_h;
+        } elseif ($method == self::RESIZE_FIT_HEIGHT) {
+            $new_h = $height;
+            $new_w = $new_h * $src_w / $src_h;
+            $width = $new_w;
+            $height = $new_h;
+        } elseif ($method == self::RESIZE_PLACE) {
+            $ratio = min($width / $src_w, $height / $src_h);
+            $new_w = round($src_w * $ratio);
+            $new_h = round($src_h * $ratio);
+            $dst_x = round(($width - $new_w) / 2);
+            if ($no_top_offset) {
+                $dst_y = 0;
+            } elseif ($no_bottom_offset) {
+                $dst_y = $height - $new_h;
+            } else {
+                $dst_y = round(($height - $new_h) / 2);
+                // place upper
+                if ($dst_y > 0 && $place_upper) {
+                    $dst_y = round($dst_y / 3 * 2);
+                }
+            }
+        } else {
+            $ratio = min($width / $src_w, $height / $src_h);
+            $new_w = round($src_w * $ratio);
+            $new_h = round($src_h * $ratio);
+            $width = $new_w;
+            $height = $new_h;
+        }
+
+        // imagick
+        if (!self::$imagickDisabled && extension_loaded('imagick')) {
+            try {
+                $im = new \Imagick($orig_path);
+                $im->stripImage();
+
+                $rgb = Helper::hex2rgb($bg_color);
+                $use_alpha = !$disable_alpha && !$as_jpeg && $mime_type == 'image/png';
+
+                $fill_color = new \ImagickPixel();
+                if ($use_alpha) {
+                    $fill_color->setColor("rgba({$rgb['r']}, {$rgb['g']}, {$rgb['b']}, 0)");
+                } else {
+                    $fill_color->setColor("rgb({$rgb['r']}, {$rgb['g']}, {$rgb['b']})");
+                }
+
+                // rotate original
+                // https://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/
+                if ($orientation == 6 || $orientation == 5) {
+                    $im->rotateImage($fill_color, 90);
+                }
+                if ($orientation == 3 || $orientation == 4) {
+                    $im->rotateImage($fill_color, 180);
+                }
+                if ($orientation == 8 || $orientation == 7) {
+                    $im->rotateImage($fill_color, 270);
+                }
+                if (in_array($orientation, array(2, 4, 5, 7))) {
+                    $im->flopImage();
+                }
+
+                $new_im = new \Imagick();
+                $new_im->newImage($width, $height, $fill_color);
+
+                if ($method == self::RESIZE_CROP) {
+                    $im->cropImage($src_w - $crop_x * 2, $src_h - $crop_y_init * 2, $crop_x, $crop_y);
+                    // https://www.php.net/manual/ru/imagick.cropimage.php#97232
+                    if ($mime_type == 'image/gif') {
+                        $im->setImagePage(0, 0, 0, 0);
+                    }
+                    $im->resizeImage($width, $height, \Imagick::FILTER_LANCZOS, 1, false);
+                } else {
+                    $im->resizeImage($new_w, $new_h, \Imagick::FILTER_LANCZOS, 1, false);
+                }
+
+                $new_im->compositeImage($im, \Imagick::COMPOSITE_DEFAULT, $dst_x, $dst_y);
+
+                if ($mime_type == 'image/png' && !$as_jpeg) {
+                    $new_im->writeImage('png:' . $dest_path);
+                } elseif ($mime_type == 'image/gif' && !$as_jpeg) {
+                    $new_im->writeImage('gif:' . $dest_path);
+                } else {
+                    $new_im->setImageCompression(\Imagick::COMPRESSION_JPEG);
+                    $new_im->setImageCompressionQuality($quality);
+                    if (self::$enableProgressiveJpeg) {
+                        $new_im->setInterlaceScheme(\Imagick::INTERLACE_PLANE);
+                    }
+                    $new_im->writeImage('jpeg:' . $dest_path);
+                }
+
+                $im->destroy();
+                $new_im->destroy();
+
+                if (is_file($dest_path)) {
+                    self::showImage($dest_path, $mime_type);
+                } else {
+                    self::showBlankImage();
+                }
+
+            } catch (\Exception $e) {
+                self::showBlankImage();
+            }
+            return;
+        }
+
+        // gd
         if ($mime_type == 'image/gif') {
             $im = imagecreatefromgif($orig_path);
         } elseif ($mime_type == 'image/png') {
@@ -279,53 +411,18 @@ class Creator
         }
 
         // rotate original
-        if ($rotate != 0) {
-            $im = imagerotate($im, $rotate, 0);
+        // https://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/
+        if ($orientation == 6 || $orientation == 5) {
+            $im = imagerotate($im, 270, 0);
         }
-
-        $dst_x = 0;
-        $dst_y = 0;
-        $x = 0;
-        $y = 0;
-
-        if ($method == 'crop') {
-            $ratio = max($width / $src_w, $height / $src_h);
-            $new_w = round($src_w * $ratio);
-            $new_h = round($src_h * $ratio);
-            $x = floor(($src_w - $width / $ratio) / 2);
-            if ($no_top_offset) {
-                $y = 0;
-            } elseif ($no_bottom_offset) {
-                $y = floor($src_h - $height / $ratio);
-            } else {
-                $y = round(($src_h - $height / $ratio) / 2);
-            }
-            // place upper
-            if ($y > 0 && $place_upper) {
-                $y = round($y / 3 * 2);
-            }
-        } elseif ($method == 'fitw') {
-            $new_w = $width;
-            $new_h = $new_w / $src_w * $src_h;
-            $width = $new_w;
-            $height = $new_h;
-        } elseif ($method == 'fith') {
-            $new_h = $height;
-            $new_w = $new_h * $src_w / $src_h;
-            $width = $new_w;
-            $height = $new_h;
-        } elseif ($method == 'place') {
-            $ratio = min($width / $src_w, $height / $src_h);
-            $new_w = round($src_w * $ratio);
-            $new_h = round($src_h * $ratio);
-            $dst_x = round(($width - $new_w) / 2);
-            $dst_y = round(($height - $new_h) / 2);
-        } else {
-            $ratio = min($width / $src_w, $height / $src_h);
-            $new_w = round($src_w * $ratio);
-            $new_h = round($src_h * $ratio);
-            $width = $new_w;
-            $height = $new_h;
+        if ($orientation == 3 || $orientation == 4) {
+            $im = imagerotate($im, 180, 0);
+        }
+        if ($orientation == 8 || $orientation == 7) {
+            $im = imagerotate($im, 90, 0);
+        }
+        if (in_array($orientation, array(2, 4, 5, 7))) {
+            Helper::flopImage($im);
         }
 
         // copying
@@ -340,18 +437,11 @@ class Creator
             $color = imagecolorallocate($new_im, $rgb['r'], $rgb['g'], $rgb['b']);
             imagefill($new_im, 0, 0, $color);
         }
-        $mode = self::$imagescaleMode !== null ? self::$imagescaleMode : IMG_MITCHELL;
-        if (function_exists('imagescale') && $mode !== false) {
-            $cropped = imagecrop($im, array('x' => $x, 'y' => $y, 'width' => $src_w, 'height' => $src_h));
-            $scaled = imagescale($cropped, $new_w, $new_h, $mode);
-            imagecopy($new_im, $scaled, $dst_x, $dst_y, 0, 0, $new_w, $new_h);
-        } else {
-            imagecopyresampled($new_im, $im, $dst_x, $dst_y, $x, $y, $new_w, $new_h, $src_w, $src_h);
-        }
+        imagecopyresampled($new_im, $im, $dst_x, $dst_y, $crop_x, $crop_y, $new_w, $new_h, $src_w, $src_h);
 
         // saving
         if ($mime_type == 'image/png' && !$as_jpeg) {
-            $level = self::$pngCompressionLevel;
+            $level = min(9, max(0, self::$gdPngCompressionLevel));
             imagepng($new_im, $dest_path, $level);
         } elseif ($mime_type == 'image/gif' && !$as_jpeg) {
             imagegif($new_im, $dest_path);

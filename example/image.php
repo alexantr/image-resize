@@ -14,4 +14,7 @@ if (isset($_GET['progressive'])) {
     Alexantr\ImageResize\Creator::$enableProgressiveJpeg = true;
 }
 
+//Alexantr\ImageResize\Creator::$gdImagecaleMode = null;
+//Alexantr\ImageResize\Creator::$imagickDisabled = true;
+
 Alexantr\ImageResize\Creator::create($webroot, $path);

@@ -200,7 +200,7 @@ class Image
      */
     public function crop($width, $height)
     {
-        return $this->resize('crop', $width, $height);
+        return $this->resize(Creator::RESIZE_CROP, $width, $height);
     }
 
     /**
@@ -211,7 +211,7 @@ class Image
      */
     public function fit($width, $height)
     {
-        return $this->resize('fit', $width, $height);
+        return $this->resize(Creator::RESIZE_FIT_ALL, $width, $height);
     }
 
     /**
@@ -221,7 +221,7 @@ class Image
      */
     public function fitWidth($width)
     {
-        return $this->resize('fitw', $width, $width);
+        return $this->resize(Creator::RESIZE_FIT_WIDTH, $width, $width);
     }
 
     /**
@@ -231,7 +231,7 @@ class Image
      */
     public function fitHeight($height)
     {
-        return $this->resize('fith', $height, $height);
+        return $this->resize(Creator::RESIZE_FIT_HEIGHT, $height, $height);
     }
 
     /**
@@ -242,7 +242,7 @@ class Image
      */
     public function place($width, $height)
     {
-        return $this->resize('place', $width, $height);
+        return $this->resize(Creator::RESIZE_PLACE, $width, $height);
     }
 
     /**
@@ -297,15 +297,15 @@ class Image
         // set dir name with all params
         $resized_dir = "{$width}-{$height}-{$method}";
         $resized_dir .= ($this->quality != Creator::$defaultQuality ? "-q{$this->quality}" : '');
-        $resized_dir .= (($this->disableAlpha || $method == 'place') && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '');
+        $resized_dir .= (($this->disableAlpha || $method == Creator::RESIZE_PLACE) && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '');
         // additional params
         $params = '';
         $params .= ($this->silhouette ? 's' : '');
         $params .= ($this->disableAlpha ? 'a' : '');
         $params .= ($this->asJpeg ? 'j' : '');
-        $params .= ($method == 'crop' && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '');
-        $params .= ($method == 'crop' && $this->noTopOffset ? 'n' : '');
-        $params .= ($method == 'crop' && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '');
+        $params .= ($method == Creator::RESIZE_CROP && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '');
+        $params .= ($method == Creator::RESIZE_CROP && $this->noTopOffset ? 'n' : '');
+        $params .= ($method == Creator::RESIZE_CROP && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '');
         $params .= ($this->disableCopy ? 'c' : '');
         $params .= (!$this->disableCopy && $this->skipSmall ? 't' : '');
         $resized_dir .= (!empty($params) ? '-' . $params : '');

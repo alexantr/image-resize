@@ -4,6 +4,10 @@ namespace Alexantr\ImageResize;
 
 class Helper
 {
+    const IMG_FLIP_HORIZONTAL = 0;
+    const IMG_FLIP_VERTICAL = 1;
+    const IMG_FLIP_BOTH = 2;
+
     /**
      * @return string
      */
@@ -157,5 +161,25 @@ class Helper
             self::$baseUrl = rtrim(dirname($scriptUrl), '\\/');
         }
         return self::$baseUrl;
+    }
+
+    /**
+     * @param resource $image
+     */
+    public static function flopImage($image)
+    {
+        if (!function_exists('imageflip')) {
+            $max_x = imagesx($image) - 1;
+            $half_x = $max_x / 2;
+            $sy = imagesy($image);
+            $temp_image = imageistruecolor($image) ? imagecreatetruecolor(1, $sy) : imagecreate(1, $sy);
+            for ($x = 0; $x < $half_x; ++$x) {
+                imagecopy($temp_image, $image, 0, 0, $x, 0, 1, $sy);
+                imagecopy($image, $image, $x, 0, $max_x - $x, 0, 1, $sy);
+                imagecopy($image, $temp_image, $max_x - $x, 0, 0, 0, 1, $sy);
+            }
+        } else {
+            imageflip($image, IMG_FLIP_HORIZONTAL);
+        }
     }
 }
