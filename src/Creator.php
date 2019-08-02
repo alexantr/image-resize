@@ -75,6 +75,7 @@ class Creator
      * @var int|null mode for imagescale()
      * @see https://www.php.net/manual/en/function.imagescale.php
      * @see https://www.php.net/manual/ru/function.imagesetinterpolation.php
+     * Set to false to disable usage of imagescale()
      */
     public static $imagescaleMode = null;
 
@@ -339,8 +340,8 @@ class Creator
             $color = imagecolorallocate($new_im, $rgb['r'], $rgb['g'], $rgb['b']);
             imagefill($new_im, 0, 0, $color);
         }
-        if (function_exists('imagescale')) {
-            $mode = self::$imagescaleMode !== null ? self::$imagescaleMode : IMG_MITCHELL;
+        $mode = self::$imagescaleMode !== null ? self::$imagescaleMode : IMG_MITCHELL;
+        if (function_exists('imagescale') && $mode !== false) {
             $cropped = imagecrop($im, array('x' => $x, 'y' => $y, 'width' => $src_w, 'height' => $src_h));
             $scaled = imagescale($cropped, $new_w, $new_h, $mode);
             imagecopy($new_im, $scaled, $dst_x, $dst_y, 0, 0, $new_w, $new_h);
