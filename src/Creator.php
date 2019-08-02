@@ -341,7 +341,8 @@ class Creator
         }
         if (function_exists('imagescale')) {
             $mode = self::$imagescaleMode !== null ? self::$imagescaleMode : IMG_MITCHELL;
-            $scaled = imagescale($im, $new_w, $new_h, $mode);
+            $cropped = imagecrop($im, array('x' => $x, 'y' => $y, 'width' => $src_w, 'height' => $src_h));
+            $scaled = imagescale($cropped, $new_w, $new_h, $mode);
             imagecopy($new_im, $scaled, $dst_x, $dst_y, 0, 0, $new_w, $new_h);
         } else {
             imagecopyresampled($new_im, $im, $dst_x, $dst_y, $x, $y, $new_w, $new_h, $src_w, $src_h);

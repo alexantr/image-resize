@@ -15,7 +15,7 @@ function test_image($src)
 
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>examples</title>
@@ -150,6 +150,9 @@ $src = Image::init('uploads/Apple.png')->asJpeg()->quality(60)->place(320, 240);
 test_image($src);
 
 $src = Image::init('uploads/cat.gif')->asJpeg()->quality(80)->disableCopy()->fitWidth(100);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->asJpeg()->quality(80)->fitWidth(100);
 test_image($src);
 
 echo "<br>\n";
