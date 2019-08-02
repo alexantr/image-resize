@@ -79,6 +79,11 @@ class Creator
     public static $imagescaleMode = null;
 
     /**
+     * @var int PNG compression level (0..9)
+     */
+    public static $pngCompressionLevel = 9;
+
+    /**
      * Create image based on $path
      * @param string $webroot
      * @param string $path
@@ -344,7 +349,8 @@ class Creator
 
         // saving
         if ($mime_type == 'image/png' && !$as_jpeg) {
-            imagepng($new_im, $dest_path, 9);
+            $level = self::$pngCompressionLevel;
+            imagepng($new_im, $dest_path, $level);
         } elseif ($mime_type == 'image/gif' && !$as_jpeg) {
             imagegif($new_im, $dest_path);
         } else {
