@@ -1,4 +1,5 @@
 <?php
+
 require '../vendor/autoload.php';
 
 @ini_set('gd.jpeg_ignore_warning', 1);

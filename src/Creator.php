@@ -11,11 +11,14 @@ class Creator
     const DEFAULT_IMAGE_NAME = 'no-image.png';
     const DEFAULT_SILHOUETTE_NAME = 'no-image-person.png';
 
-    const RESIZE_CROP = 'crop';
-    const RESIZE_PLACE = 'place';
-    const RESIZE_FIT_WIDTH = 'fitw';
-    const RESIZE_FIT_HEIGHT = 'fith';
-    const RESIZE_FIT_ALL = 'fit';
+    const FIT_CROP = 'crop';
+    const FIT_CONTAIN = 'fit';
+    const FIT_WIDTH = 'fitw';
+    const FIT_HEIGHT = 'fith';
+    const FIT_FILL = 'fill'; // old 'place'
+    const FIT_MAX = 'max';
+    const FIT_STRETCH = 'stretch';
+    const PLACE_CENTER = 'center';
 
     /**
      * @var string base directory where resized images are saving
@@ -53,11 +56,14 @@ class Creator
      * @var array allowed methods
      */
     public static $methods = array(
-        self::RESIZE_CROP,
-        self::RESIZE_FIT_ALL,
-        self::RESIZE_FIT_WIDTH,
-        self::RESIZE_FIT_HEIGHT,
-        self::RESIZE_PLACE,
+        self::FIT_CROP,
+        self::FIT_CONTAIN,
+        self::FIT_WIDTH,
+        self::FIT_HEIGHT,
+        self::FIT_FILL,
+        self::FIT_MAX,
+        self::FIT_STRETCH,
+        self::PLACE_CENTER,
     );
     /**
      * @var string custom path to default image
@@ -229,9 +235,9 @@ class Creator
         if (!$disable_copy) {
             // copy with identical sizes
             if (
-                ($method == self::RESIZE_FIT_WIDTH && $width == $src_w) ||
-                ($method == self::RESIZE_FIT_HEIGHT && $height == $src_h) ||
-                ($method != self::RESIZE_FIT_WIDTH && $method != self::RESIZE_FIT_HEIGHT && $width == $src_w && $height == $src_h)
+                ($method == self::FIT_WIDTH && $width == $src_w) ||
+                ($method == self::FIT_HEIGHT && $height == $src_h) ||
+                ($method != self::FIT_WIDTH && $method != self::FIT_HEIGHT && $width == $src_w && $height == $src_h)
             ) {
                 copy($orig_path, $dest_path);
                 if (is_file($dest_path)) {
@@ -242,9 +248,9 @@ class Creator
             // copy smaller
             if ($skip_small) {
                 if (
-                    ($method == self::RESIZE_FIT_WIDTH && $width >= $src_w) ||
-                    ($method == self::RESIZE_FIT_HEIGHT && $height >= $src_h) ||
-                    ($method != self::RESIZE_FIT_WIDTH && $method != self::RESIZE_FIT_HEIGHT && $width >= $src_w && $height >= $src_h)
+                    ($method == self::FIT_WIDTH && $width >= $src_w) ||
+                    ($method == self::FIT_HEIGHT && $height >= $src_h) ||
+                    ($method != self::FIT_WIDTH && $method != self::FIT_HEIGHT && $width >= $src_w && $height >= $src_h)
                 ) {
                     copy($orig_path, $dest_path);
                     if (is_file($dest_path)) {
@@ -258,36 +264,45 @@ class Creator
         $dst_y = 0;
         $crop_x = 0;
         $crop_y = 0;
-        $crop_y_init = 0;
+        $crop_w = $src_w;
+        $crop_h = $src_h;
 
-        if ($method == self::RESIZE_CROP) {
+        if ($method == self::FIT_STRETCH) {
+            $new_w = $width;
+            $new_h = $height;
+        } elseif ($method == self::FIT_MAX) {
+            $ratio = max($width / $src_w, $height / $src_h);
+            $new_w = round($src_w * $ratio);
+            $new_h = round($src_h * $ratio);
+            $width = $new_w;
+            $height = $new_h;
+        } elseif ($method == self::FIT_CROP) {
             $ratio = max($width / $src_w, $height / $src_h);
             $new_w = round($src_w * $ratio);
             $new_h = round($src_h * $ratio);
             $crop_x = floor(($src_w - $width / $ratio) / 2);
-            $crop_y_init = round(($src_h - $height / $ratio) / 2);
+            $crop_y = round(($src_h - $height / $ratio) / 2);
+            $crop_w = $src_w - $crop_x * 2;
+            $crop_h = $src_h - $crop_y * 2;
             if ($no_top_offset) {
                 $crop_y = 0;
             } elseif ($no_bottom_offset) {
                 $crop_y = floor($src_h - $height / $ratio);
             } else {
-                $crop_y = $crop_y_init;
                 // place upper
                 if ($crop_y > 0 && $place_upper) {
                     $crop_y = round($crop_y / 3 * 2);
                 }
             }
-        } elseif ($method == self::RESIZE_FIT_WIDTH) {
+        } elseif ($method == self::FIT_WIDTH) {
             $new_w = $width;
             $new_h = $new_w / $src_w * $src_h;
-            $width = $new_w;
             $height = $new_h;
-        } elseif ($method == self::RESIZE_FIT_HEIGHT) {
+        } elseif ($method == self::FIT_HEIGHT) {
             $new_h = $height;
             $new_w = $new_h * $src_w / $src_h;
             $width = $new_w;
-            $height = $new_h;
-        } elseif ($method == self::RESIZE_PLACE) {
+        } elseif ($method == self::FIT_FILL) {
             $ratio = min($width / $src_w, $height / $src_h);
             $new_w = round($src_w * $ratio);
             $new_h = round($src_h * $ratio);
@@ -303,6 +318,21 @@ class Creator
                     $dst_y = round($dst_y / 3 * 2);
                 }
             }
+        } elseif ($method == self::PLACE_CENTER) {
+            $new_w = min($width, $src_w);
+            $new_h = min($height, $src_h);
+            if ($src_w > $width) {
+                $crop_x = floor(($src_w - $width) / 2);
+            } elseif ($src_w < $width) {
+                $dst_x = round(($width - $src_w) / 2);
+            }
+            if ($src_h > $height) {
+                $crop_y = floor(($src_h - $height) / 2);
+            } elseif ($src_h < $height) {
+                $dst_y = round(($height - $src_h) / 2);
+            }
+            $crop_w = $src_w - $crop_x * 2;
+            $crop_h = $src_h - $crop_y * 2;
         } else {
             $ratio = min($width / $src_w, $height / $src_h);
             $new_w = round($src_w * $ratio);
@@ -343,13 +373,15 @@ class Creator
                 $new_im = new \Imagick();
                 $new_im->newImage($width, $height, $fill_color);
 
-                if ($method == self::RESIZE_CROP) {
-                    $im->cropImage($src_w - $crop_x * 2, $src_h - $crop_y_init * 2, $crop_x, $crop_y);
+                if ($method == self::FIT_CROP || $method == self::PLACE_CENTER) {
+                    $im->cropImage($crop_w, $crop_h, $crop_x, $crop_y);
                     // https://www.php.net/manual/ru/imagick.cropimage.php#97232
                     if ($is_gif) {
                         $im->setImagePage(0, 0, 0, 0);
                     }
-                    $im->resizeImage($width, $height, \Imagick::FILTER_LANCZOS, 1, false);
+                    if ($method == self::FIT_CROP) {
+                        $im->resizeImage($width, $height, \Imagick::FILTER_LANCZOS, 1, false);
+                    }
                 } else {
                     $im->resizeImage($new_w, $new_h, \Imagick::FILTER_LANCZOS, 1, false);
                 }
@@ -424,7 +456,25 @@ class Creator
             $color = imagecolorallocate($new_im, $rgb['r'], $rgb['g'], $rgb['b']);
             imagefill($new_im, 0, 0, $color);
         }
-        imagecopyresampled($new_im, $im, $dst_x, $dst_y, $crop_x, $crop_y, $new_w, $new_h, $src_w, $src_h);
+        if ($method == self::FIT_CROP || $method == self::PLACE_CENTER) {
+            $im = Helper::cropImage($im, array(
+                'x' => $crop_x,
+                'y' => $crop_y,
+                'width' => $crop_w,
+                'height' => $crop_h,
+            ));
+            $crop_x = 0;
+            $crop_y = 0;
+        }
+        if ($method == self::FIT_CROP) {
+            $new_w = $width;
+            $new_h = $height;
+        }
+        if ($method == self::PLACE_CENTER) {
+            $crop_w = $new_w;
+            $crop_h = $new_h;
+        }
+        imagecopyresampled($new_im, $im, $dst_x, $dst_y, $crop_x, $crop_y, $new_w, $new_h, $crop_w, $crop_h);
 
         // saving
         if ($is_png && !$as_jpeg) {

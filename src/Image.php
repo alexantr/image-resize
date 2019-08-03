@@ -205,18 +205,18 @@ class Image
      */
     public function crop($width, $height)
     {
-        return $this->resize(Creator::RESIZE_CROP, $width, $height);
+        return $this->resize(Creator::FIT_CROP, $width, $height);
     }
 
     /**
-     * Fit
+     * Fit contain
      * @param int $width
      * @param int $height
      * @return string
      */
     public function fit($width, $height)
     {
-        return $this->resize(Creator::RESIZE_FIT_ALL, $width, $height);
+        return $this->resize(Creator::FIT_CONTAIN, $width, $height);
     }
 
     /**
@@ -226,7 +226,7 @@ class Image
      */
     public function fitWidth($width)
     {
-        return $this->resize(Creator::RESIZE_FIT_WIDTH, $width, $width);
+        return $this->resize(Creator::FIT_WIDTH, $width, $width);
     }
 
     /**
@@ -236,18 +236,63 @@ class Image
      */
     public function fitHeight($height)
     {
-        return $this->resize(Creator::RESIZE_FIT_HEIGHT, $height, $height);
+        return $this->resize(Creator::FIT_HEIGHT, $height, $height);
     }
 
     /**
-     * Place
+     * Fit fill
      * @param int $width
      * @param int $height
      * @return string
      */
+    public function fill($width, $height)
+    {
+        return $this->resize(Creator::FIT_FILL, $width, $height);
+    }
+
+    /**
+     * Fit max
+     * @param int $width
+     * @param int $height
+     * @return string
+     */
+    public function max($width, $height)
+    {
+        return $this->resize(Creator::FIT_MAX, $width, $height);
+    }
+
+    /**
+     * Fit stretch
+     * @param int $width
+     * @param int $height
+     * @return string
+     */
+    public function stretch($width, $height)
+    {
+        return $this->resize(Creator::FIT_STRETCH, $width, $height);
+    }
+
+    /**
+     * Place (fit fill alias)
+     * @param int $width
+     * @param int $height
+     * @return string
+     * @deprecated since v2.0
+     */
     public function place($width, $height)
     {
-        return $this->resize(Creator::RESIZE_PLACE, $width, $height);
+        return $this->fill($width, $height);
+    }
+
+    /**
+     * Place center
+     * @param int $width
+     * @param int $height
+     * @return string
+     */
+    public function placeCenter($width, $height)
+    {
+        return $this->resize(Creator::PLACE_CENTER, $width, $height);
     }
 
     /**
@@ -299,18 +344,21 @@ class Image
             }
         }
 
+        $can_set_bg_color = $this->disableAlpha || $this->asJpeg || $method == Creator::FIT_FILL;
+        $can_y_offset = $method == Creator::FIT_CROP || $method == Creator::FIT_FILL;
+
         // set dir name with all params
         $resized_dir = "{$width}-{$height}-{$method}";
         $resized_dir .= $this->quality != Creator::$defaultQuality ? "-q{$this->quality}" : '';
-        $resized_dir .= ($this->disableAlpha || $this->asJpeg || $method == Creator::RESIZE_PLACE) && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '';
+        $resized_dir .= $can_set_bg_color && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '';
         // additional params
         $params = '';
         $params .= $this->silhouette ? 's' : '';
         $params .= $this->disableAlpha ? 'a' : '';
         $params .= $this->asJpeg ? 'j' : '';
-        $params .= $method == Creator::RESIZE_CROP && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '';
-        $params .= $method == Creator::RESIZE_CROP && $this->noTopOffset ? 'n' : '';
-        $params .= $method == Creator::RESIZE_CROP && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '';
+        $params .= $can_y_offset && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '';
+        $params .= $can_y_offset && $this->noTopOffset ? 'n' : '';
+        $params .= $can_y_offset && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '';
         $params .= $this->disableCopy ? 'c' : '';
         $params .= !$this->disableCopy && $this->skipSmall ? 't' : '';
         $params .= $this->noExifRotate ? 'r' : '';

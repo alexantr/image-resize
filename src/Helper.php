@@ -183,4 +183,30 @@ class Helper
             imageflip($image, IMG_FLIP_HORIZONTAL);
         }
     }
+
+    /**
+     * @param resource $src
+     * @param array $rect
+     * @return resource|bool
+     */
+    public static function cropImage($src, array $rect)
+    {
+        if (!function_exists('imagecrop')) {
+            $im = imagecreatetruecolor($rect['width'], $rect['height']);
+            imagealphablending($im, false);
+            imagesavealpha($im, true);
+            $color = imagecolorallocatealpha($im, 255, 255, 255, 127);
+            imagefilledrectangle($im, 0, 0, $rect['width'], $rect['height'], $color);
+            imagecopy($im, $src, 0, 0, $rect['x'], $rect['y'], $rect['width'], $rect['height']);
+        } else {
+            $im = imagecrop($src, array(
+                'x' => $rect['x'],
+                'y' => $rect['y'],
+                'width' => $rect['width'],
+                'height' => $rect['height'],
+            ));
+        }
+
+        return $im;
+    }
 }

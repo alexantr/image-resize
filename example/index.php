@@ -34,6 +34,28 @@ function test_image($src)
 $src = Image::init('uploads/folder/antelope_canyon.jpg')->crop(150, 150);
 test_image($src);
 
+$src = Image::init('uploads/Apple.png')->disableAlpha()->fill(200, 150);
+test_image($src);
+
+$src = Image::init('uploads/cat.gif')->disableAlpha()->bgColor('96f')->placeCenter(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/cat.gif')->placeCenter(80, 150);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->disableAlpha()->placeCenter(170, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->stretch(200, 150);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->stretch(200, 150);
+test_image($src);
+
+echo "<br>\n";
+
+// path examples
+
 // double "../"
 $url = 'uploads/folder/../../uploads/folder/floating_leaves.jpg';
 echo '<!-- ' . Helper::cleanImageUrl($url) . ' -->' . "\n";
@@ -43,13 +65,13 @@ test_image($src);
 $src = Image::init('uploads/./././folder/../Cat.jpeg')->crop(150, 150);
 test_image($src);
 
-$src = Image::init('./uploads/Cat.jpeg')->placeUpper()->crop(150, 150);
+$src = Image::init('./uploads/cs-137.gif')->crop(150, 150);
 test_image($src);
 
-$src = Image::init('example/../uploads/Cat.jpeg')->noTopOffset()->crop(150, 150);
+$src = Image::init('example/../uploads/petr.jpg')->crop(120, 150);
 test_image($src);
 
-$src = Image::init('uploads/Cat.jpeg?foo=bar')->noBottomOffset()->crop(150, 150);
+$src = Image::init('uploads/parrot.gif?foo=bar')->disableAlpha()->crop(190, 150);
 test_image($src);
 
 $src = Image::init('../example/uploads/cat.gif#foobar')->fitWidth(150);
@@ -58,7 +80,7 @@ test_image($src);
 // variant with path relative to document root
 $url = Helper::getBaseUrl() . '/uploads/Apple.png';
 echo '<!-- ' . $url . ' -->' . "\n";
-$src = Image::init($url)->place(120, 150);
+$src = Image::init($url)->fill(120, 150);
 test_image($src);
 
 // wrong url
@@ -67,6 +89,34 @@ test_image($src);
 
 // wrong url - no extension
 $src = Image::init('foobar')->crop(150, 150);
+test_image($src);
+
+echo "<br>\n";
+
+// vertical position
+
+$src = Image::init('uploads/Cat.jpeg')->crop(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Cat.jpeg')->placeUpper()->crop(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Cat.jpeg')->noTopOffset()->crop(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Cat.jpeg')->noBottomOffset()->crop(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->fill(100, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->placeUpper()->fill(100, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->noTopOffset()->fill(100, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->noBottomOffset()->fill(100, 150);
 test_image($src);
 
 echo "<br>\n";
@@ -82,7 +132,10 @@ test_image($src);
 $src = Image::init('uploads/folder/antelope_canyon.jpg')->quality(10)->crop(250, 200);
 test_image($src);
 
-$src = Image::init('uploads/folder/floating_leaves.jpg')->quality(60)->fitHeight(200);
+$src = Image::init('uploads/folder/floating_leaves.jpg')->quality(50)->fitHeight(200);
+test_image($src);
+
+$src = Image::init('uploads/folder/floating_leaves.jpg')->quality(90)->fitHeight(200);
 test_image($src);
 
 echo "<br>\n";
@@ -99,8 +152,14 @@ test_image($src);
 $src = Image::init('uploads/not-found.png')->silhouette()->crop(110, 150);
 test_image($src);
 
-$src = Image::init('uploads/not-found.png')->disableAlpha()->bgColor('69f')->place(200, 150);
+$src = Image::init('uploads/not-found.png')->disableAlpha()->bgColor('69f')->fill(200, 150);
 test_image($src);
+test_image($src . '?custom=1');
+
+$src = Image::init('uploads/not-found.png')->placeCenter(200, 150);
+test_image($src);
+
+$src = Image::init('uploads/not-found.png')->disableAlpha()->placeCenter(200, 150);
 test_image($src . '?custom=1');
 
 echo "<br>\n";
@@ -110,10 +169,10 @@ echo "<br>\n";
 $src = Image::init('uploads/Apple.png')->fit(180, 150);
 test_image($src);
 
-$src = Image::init('uploads/Apple.png')->disableAlpha()->bgColor('3366cc')->place(150, 150);
+$src = Image::init('uploads/Apple.png')->disableAlpha()->bgColor('3366cc')->fill(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/Apple.png')->disableAlpha()->bgColor('c36')->place(180, 150);
+$src = Image::init('uploads/Apple.png')->disableAlpha()->bgColor('c36')->fill(180, 150);
 test_image($src);
 
 echo "<br>\n";
@@ -146,7 +205,7 @@ echo "<br>\n";
 
 // force jpeg
 
-$src = Image::init('uploads/Apple.png')->asJpeg()->quality(60)->place(320, 240);
+$src = Image::init('uploads/Apple.png')->asJpeg()->quality(60)->fill(320, 240);
 test_image($src);
 
 $src = Image::init('uploads/cat.gif')->asJpeg()->quality(80)->disableCopy()->fitWidth(100);
@@ -179,46 +238,62 @@ test_image($src);
 
 echo "<br>\n";
 
-// check place offset
+// check fill offset
 
-$src = Image::init('uploads/petr.jpg')->place(81, 100);
+$src = Image::init('uploads/petr.jpg')->fill(81, 100);
 test_image($src);
 
-$src = Image::init('uploads/petr.jpg')->place(82, 100);
+$src = Image::init('uploads/petr.jpg')->fill(82, 100);
 test_image($src);
 
-$src = Image::init('uploads/petr.jpg')->place(83, 100);
+$src = Image::init('uploads/petr.jpg')->fill(83, 100);
 test_image($src);
 
-$src = Image::init('uploads/petr.jpg')->place(84, 100);
+$src = Image::init('uploads/petr.jpg')->fill(84, 100);
 test_image($src);
 
-$src = Image::init('uploads/petr.jpg')->place(85, 100);
+$src = Image::init('uploads/petr.jpg')->fill(85, 100);
 test_image($src);
 
-$src = Image::init('uploads/petr.jpg')->place(86, 100);
+$src = Image::init('uploads/petr.jpg')->fill(86, 100);
 test_image($src);
 
-$src = Image::init('uploads/petr.jpg')->place(87, 100);
+$src = Image::init('uploads/petr.jpg')->fill(87, 100);
 test_image($src);
 
-$src = Image::init('uploads/petr.jpg')->place(88, 100);
+$src = Image::init('uploads/petr.jpg')->fill(88, 100);
+test_image($src);
+
+echo "<br>\n";
+
+// max
+
+$src = Image::init('uploads/cs-137.gif')->max(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->max(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->max(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/folder/antelope_canyon.jpg')->max(150, 150);
 test_image($src);
 
 echo "<br>\n";
 
 // gifs
 
-$src = Image::init('uploads/parrot.gif')->place(150, 150);
+$src = Image::init('uploads/parrot.gif')->fill(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/parrot.gif')->disableAlpha()->bgColor('ddd')->place(150, 150);
+$src = Image::init('uploads/parrot.gif')->disableAlpha()->bgColor('ddd')->fill(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/cs-137.gif')->place(150, 150);
+$src = Image::init('uploads/cs-137.gif')->fill(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/cs-137.gif')->disableAlpha()->place(150, 150);
+$src = Image::init('uploads/cs-137.gif')->disableAlpha()->fill(150, 150);
 test_image($src);
 
 $src = Image::init('uploads/cs-137.gif')->noBottomOffset()->crop(300, 150);
