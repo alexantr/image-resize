@@ -34,18 +34,21 @@ class Helper
 
     /**
      * @param string $hex
-     * @return string 3 or 6 signs
+     * @return string 3, 4, 6 or 8 signs
      */
-    public static function processColor($hex)
+    public static function normalizeHexColor($hex)
     {
         $hex = str_replace('#', '', $hex);
-        if (empty($hex) || !preg_match('/^([0-9a-f]{3}|[0-9a-f]{6})$/i', $hex)) {
+        if (empty($hex) || !preg_match('/^([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $hex)) {
             return Creator::$defaultBgColor;
+        }
+        if (preg_match('/^([0-9a-f])\1([0-9a-f])\2([0-9a-f])\3([0-9a-f])\4$/i', $hex, $m)) {
+            return strtolower($m[1] . $m[2] . $m[3] . $m[4]);
         }
         if (preg_match('/^([0-9a-f])\1([0-9a-f])\2([0-9a-f])\3$/i', $hex, $m)) {
             return strtolower($m[1] . $m[2] . $m[3]);
         }
-        return $hex;
+        return strtolower($hex);
     }
 
     /**
@@ -56,7 +59,7 @@ class Helper
     public static function parsePath($path)
     {
         $methods = implode('|', Creator::$methods);
-        if (preg_match('{^(([0-9]{1,4})-([0-9]{1,4})-(' . $methods . ')(?:-q([0-9]{1,2}|100))?(?:-([a-f0-9]{3}|[a-f0-9]{6}))?(?:-([a-z]+))?)/(.+)}', $path, $m)) {
+        if (preg_match('{^(([0-9]{1,4})-([0-9]{1,4})-(' . $methods . ')(?:-q([0-9]{1,2}|100))?(?:-([a-f0-9]{3}|[a-f0-9]{4}|[a-f0-9]{6}|[a-f0-9]{8}))?(?:-([a-z]+))?)/(.+)}', $path, $m)) {
             $params = $m[7];
             $params = str_split($params);
             return array(
@@ -65,9 +68,8 @@ class Helper
                 'height' => (int)$m[3],
                 'method' => $m[4],
                 'quality' => ($m[5] !== '' ? Helper::processQuality($m[5]) : Creator::$defaultQuality),
-                'bg_color' => Helper::processColor($m[6]),
+                'bg_color' => Helper::normalizeHexColor($m[6]),
                 'silhouette' => in_array('s', $params),
-                'disable_alpha' => in_array('a', $params),
                 'as_jpeg' => in_array('j', $params),
                 'place_upper' => in_array('u', $params),
                 'no_top_offset' => in_array('n', $params),
@@ -119,17 +121,29 @@ class Helper
      */
     public static function hex2rgb($hex)
     {
-        $hex = self::processColor($hex);
+        $hex = self::normalizeHexColor($hex);
         if (strlen($hex) == 3) {
             $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
             $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
             $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
+            $a = 255;
+        } elseif (strlen($hex) == 4) {
+            $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
+            $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
+            $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
+            $a = hexdec(substr($hex, 3, 1) . substr($hex, 3, 1));
+        } elseif (strlen($hex) == 8) {
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+            $a = hexdec(substr($hex, 6, 2));
         } else {
             $r = hexdec(substr($hex, 0, 2));
             $g = hexdec(substr($hex, 2, 2));
             $b = hexdec(substr($hex, 4, 2));
+            $a = 255;
         }
-        return array('r' => $r, 'g' => $g, 'b' => $b);
+        return array('r' => $r, 'g' => $g, 'b' => $b, 'a' => $a);
     }
 
     /**

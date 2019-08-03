@@ -47,7 +47,7 @@ class Creator
     /**
      * @var string default background color
      */
-    public static $defaultBgColor = 'fff';
+    public static $defaultBgColor = 'fff0';
     /**
      * @var array allowed mime types
      */
@@ -112,7 +112,6 @@ class Creator
         $quality = $params['quality'];
         $bg_color = $params['bg_color'];
         $silhouette = $params['silhouette'];
-        $disable_alpha = $params['disable_alpha'];
         $as_jpeg = $params['as_jpeg'];
         $place_upper = $params['place_upper'];
         $no_top_offset = $params['no_top_offset'];
@@ -350,8 +349,16 @@ class Creator
 
                 $rgb = Helper::hex2rgb($bg_color);
                 $fill_color = new \ImagickPixel();
-                if (!$disable_alpha && !$as_jpeg && !$is_jpeg) {
-                    $fill_color->setColor("rgba({$rgb['r']}, {$rgb['g']}, {$rgb['b']}, 0)");
+                if (!$as_jpeg && !$is_jpeg) {
+                    $alpha = round($rgb['a'] / 255, 2);
+                    if ($is_gif) {
+                        if ($rgb['a'] > 127) {
+                            $alpha = 1;
+                        } else {
+                            $alpha = 0;
+                        }
+                    }
+                    $fill_color->setColor("rgba({$rgb['r']}, {$rgb['g']}, {$rgb['b']}, {$alpha})");
                 } else {
                     $fill_color->setColor("rgb({$rgb['r']}, {$rgb['g']}, {$rgb['b']})");
                 }
@@ -453,11 +460,13 @@ class Creator
         // copying
         $rgb = Helper::hex2rgb($bg_color);
         $new_im = imagecreatetruecolor($width, $height);
-        if (!$disable_alpha && !$as_jpeg && $is_png) {
+        if (!$as_jpeg && $is_png) {
             imagealphablending($new_im, false);
             imagesavealpha($new_im, true);
-            $color = imagecolorallocatealpha($new_im, $rgb['r'], $rgb['g'], $rgb['b'], 127);
+            $alpha = 127 - 127 * $rgb['a'] / 255;
+            $color = imagecolorallocatealpha($new_im, $rgb['r'], $rgb['g'], $rgb['b'], $alpha);
             imagefilledrectangle($new_im, 0, 0, $width, $height, $color);
+            imagealphablending($new_im, true);
         } else {
             $color = imagecolorallocate($new_im, $rgb['r'], $rgb['g'], $rgb['b']);
             imagefill($new_im, 0, 0, $color);

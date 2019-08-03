@@ -24,10 +24,6 @@ class Image
      */
     protected $silhouette = false;
     /**
-     * @var bool disable alpha channel for png and gif
-     */
-    protected $disableAlpha = false;
-    /**
      * @var bool place image 2/3 upper for portraits. Do not work with enabled noTopOffset, noBottomOffset
      */
     protected $placeUpper = false;
@@ -97,7 +93,7 @@ class Image
      */
     public function bgColor($hex)
     {
-        $this->bgColor = Helper::processColor($hex);
+        $this->bgColor = Helper::normalizeHexColor($hex);
         return $this;
     }
 
@@ -109,17 +105,6 @@ class Image
     public function silhouette($value = true)
     {
         $this->silhouette = $value;
-        return $this;
-    }
-
-    /**
-     * Disable transparency for png
-     * @param bool|true $value
-     * @return $this
-     */
-    public function disableAlpha($value = true)
-    {
-        $this->disableAlpha = $value;
         return $this;
     }
 
@@ -288,18 +273,6 @@ class Image
     }
 
     /**
-     * Place (fit fill alias)
-     * @param int $width
-     * @param int $height
-     * @return string
-     * @deprecated since v2.0
-     */
-    public function place($width, $height)
-    {
-        return $this->fill($width, $height);
-    }
-
-    /**
      * Place center
      * @param int $width
      * @param int $height
@@ -359,17 +332,15 @@ class Image
             }
         }
 
-        $can_set_bg_color = $this->disableAlpha || $this->asJpeg || $method == Creator::FIT_FILL;
         $can_y_offset = $method == Creator::FIT_CROP || $method == Creator::FIT_FILL;
 
         // set dir name with all params
         $resized_dir = "{$width}-{$height}-{$method}";
-        $resized_dir .= $this->quality != Creator::$defaultQuality ? "-q{$this->quality}" : '';
-        $resized_dir .= $can_set_bg_color && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '';
+        $resized_dir .= $this->quality !== Creator::$defaultQuality ? "-q{$this->quality}" : '';
+        $resized_dir .= $this->bgColor !== Creator::$defaultBgColor ? "-{$this->bgColor}" : '';
         // additional params
         $params = '';
         $params .= $this->silhouette ? 's' : '';
-        $params .= $this->disableAlpha ? 'a' : '';
         $params .= $this->asJpeg ? 'j' : '';
         $params .= $can_y_offset && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '';
         $params .= $can_y_offset && $this->noTopOffset ? 'n' : '';

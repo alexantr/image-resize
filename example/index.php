@@ -34,16 +34,16 @@ function test_image($src)
 $src = Image::init('uploads/folder/antelope_canyon.jpg')->crop(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/Apple.png')->disableAlpha()->fill(200, 150);
+$src = Image::init('uploads/Apple.png')->bgColor('fff')->fill(200, 150);
 test_image($src);
 
-$src = Image::init('uploads/cat.gif')->disableAlpha()->bgColor('96f')->placeCenter(150, 150);
+$src = Image::init('uploads/cat.gif')->bgColor('96f')->placeCenter(150, 150);
 test_image($src);
 
 $src = Image::init('uploads/cat.gif')->placeCenter(80, 150);
 test_image($src);
 
-$src = Image::init('uploads/petr.jpg')->disableAlpha()->placeCenter(170, 150);
+$src = Image::init('uploads/petr.jpg')->bgColor('fff')->placeCenter(170, 150);
 test_image($src);
 
 $src = Image::init('uploads/Apple.png')->stretch(200, 150);
@@ -71,7 +71,7 @@ test_image($src);
 $src = Image::init('example/../uploads/petr.jpg')->crop(120, 150);
 test_image($src);
 
-$src = Image::init('uploads/parrot.gif?foo=bar')->disableAlpha()->crop(190, 150);
+$src = Image::init('uploads/parrot.gif?foo=bar')->bgColor('fff')->crop(190, 150);
 test_image($src);
 
 $src = Image::init('../example/uploads/cat.gif#foobar')->fitWidth(150);
@@ -152,27 +152,39 @@ test_image($src);
 $src = Image::init('uploads/not-found.png')->silhouette()->crop(110, 150);
 test_image($src);
 
-$src = Image::init('uploads/not-found.png')->disableAlpha()->bgColor('69f')->fill(200, 150);
+$src = Image::init('uploads/not-found.png')->bgColor('69f')->fill(200, 150);
 test_image($src);
 test_image($src . '?custom=1');
 
 $src = Image::init('uploads/not-found.png')->placeCenter(200, 150);
 test_image($src);
 
-$src = Image::init('uploads/not-found.png')->disableAlpha()->placeCenter(200, 150);
+$src = Image::init('uploads/not-found.png')->bgColor('fff')->placeCenter(200, 150);
 test_image($src . '?custom=1');
 
 echo "<br>\n";
 
 // background examples
 
-$src = Image::init('uploads/Apple.png')->fit(180, 150);
+$src = Image::init('uploads/Apple.png')->bgColor('0000')->fit(180, 150);
 test_image($src);
 
-$src = Image::init('uploads/Apple.png')->disableAlpha()->bgColor('3366cc')->fill(150, 150);
+$src = Image::init('uploads/Apple.png')->bgColor('0002')->fit(180, 150);
 test_image($src);
 
-$src = Image::init('uploads/Apple.png')->disableAlpha()->bgColor('c36')->fill(180, 150);
+$src = Image::init('uploads/Apple.png')->bgColor('3366cc')->fill(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->bgColor('356ecc59')->fill(180, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->bgColor('36cc')->fill(180, 150);
+test_image($src);
+
+$src = Image::init('uploads/parrot.gif')->bgColor('c365')->fill(180, 150);
+test_image($src);
+
+$src = Image::init('uploads/parrot.gif')->bgColor('c36c')->fill(180, 150);
 test_image($src);
 
 echo "<br>\n";
@@ -303,13 +315,13 @@ echo "<br>\n";
 $src = Image::init('uploads/parrot.gif')->fill(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/parrot.gif')->disableAlpha()->bgColor('ddd')->fill(150, 150);
+$src = Image::init('uploads/parrot.gif')->bgColor('ddd')->fill(150, 150);
 test_image($src);
 
 $src = Image::init('uploads/cs-137.gif')->fill(150, 150);
 test_image($src);
 
-$src = Image::init('uploads/cs-137.gif')->disableAlpha()->fill(150, 150);
+$src = Image::init('uploads/cs-137.gif')->bgColor('fff')->fill(150, 150);
 test_image($src);
 
 $src = Image::init('uploads/cs-137.gif')->noBottomOffset()->crop(300, 150);
