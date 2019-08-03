@@ -55,6 +55,10 @@ class Image
      * @var bool disable autorotating based on EXIF data
      */
     protected $noExifRotate = false;
+    /**
+     * @var bool grayscale filter
+     */
+    protected $grayscale = false;
 
     /**
      * @param string $imageUrl
@@ -194,6 +198,17 @@ class Image
     public function noExifRotate($value = true)
     {
         $this->noExifRotate = $value;
+        return $this;
+    }
+
+    /**
+     * Add grayscale filter
+     * @param bool|true $value
+     * @return $this
+     */
+    public function grayscale($value = true)
+    {
+        $this->grayscale = $value;
         return $this;
     }
 
@@ -362,6 +377,7 @@ class Image
         $params .= $this->disableCopy ? 'c' : '';
         $params .= !$this->disableCopy && $this->skipSmall ? 't' : '';
         $params .= $this->noExifRotate ? 'r' : '';
+        $params .= $this->grayscale ? 'g' : '';
         $resized_dir .= !empty($params) ? '-' . $params : '';
 
         return Helper::getBaseUrl() . Creator::$resizedBaseDir . '/' . $resized_dir . '/' . $image_url;

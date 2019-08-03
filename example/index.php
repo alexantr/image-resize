@@ -282,6 +282,22 @@ test_image($src);
 
 echo "<br>\n";
 
+// filter grayscale
+
+$src = Image::init('uploads/cs-137.gif')->grayscale()->fit(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->grayscale()->fit(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->grayscale()->fit(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/folder/antelope_canyon.jpg')->grayscale()->fit(150, 150);
+test_image($src);
+
+echo "<br>\n";
+
 // gifs
 
 $src = Image::init('uploads/parrot.gif')->fill(150, 150);

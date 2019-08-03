@@ -120,6 +120,7 @@ class Creator
         $disable_copy = $params['disable_copy'];
         $skip_small = $params['skip_small'];
         $no_exif_rotate = $params['no_exif_rotate'];
+        $grayscale = $params['grayscale'];
         $image_url = $params['image_url'];
 
         // wrong params
@@ -388,6 +389,11 @@ class Creator
 
                 $new_im->compositeImage($im, \Imagick::COMPOSITE_DEFAULT, $dst_x, $dst_y);
 
+                // filter
+                if ($grayscale) {
+                    $new_im->modulateImage(100, 0, 100);
+                }
+
                 if ($is_png && !$as_jpeg) {
                     $new_im->writeImage('png:' . $dest_path);
                 } elseif ($is_gif && !$as_jpeg) {
@@ -475,6 +481,11 @@ class Creator
             $crop_h = $new_h;
         }
         imagecopyresampled($new_im, $im, $dst_x, $dst_y, $crop_x, $crop_y, $new_w, $new_h, $crop_w, $crop_h);
+
+        // filter
+        if ($grayscale) {
+            imagefilter($new_im, IMG_FILTER_GRAYSCALE);
+        }
 
         // saving
         if ($is_png && !$as_jpeg) {
