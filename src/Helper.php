@@ -74,6 +74,7 @@ class Helper
                 'no_bottom_offset' => in_array('b', $params),
                 'disable_copy' => in_array('c', $params),
                 'skip_small' => in_array('t', $params),
+                'no_exif_rotate' => in_array('r', $params),
                 'image_url' => trim($m[8]),
             );
         } else {

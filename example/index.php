@@ -139,7 +139,7 @@ echo "<br>\n";
 
 // progressive jpeg
 
-$src = Image::init('uploads/folder/antelope_canyon.jpg')->quality(80)->crop(640, 480);
+$src = Image::init('uploads/folder/antelope_canyon.jpg')->quality(99)->crop(640, 480);
 test_image($src . '?progressive=1');
 
 echo "<br>\n";
@@ -155,23 +155,129 @@ test_image($src);
 $src = Image::init('uploads/Apple.png')->asJpeg()->quality(80)->fitWidth(100);
 test_image($src);
 
+$src = Image::init('uploads/Apple.png')->asJpeg()->quality(95)->bgColor('63c')->fitWidth(150);
+test_image($src);
+
 echo "<br>\n";
 
 // check crop offset
 
-$src = Image::init('uploads/check_offset.jpg')->crop(82, 100);
+$src = Image::init('uploads/petr.jpg')->crop(82, 100);
 test_image($src);
 
-$src = Image::init('uploads/check_offset.jpg')->crop(83, 100);
+$src = Image::init('uploads/petr.jpg')->crop(83, 100);
 test_image($src);
 
-$src = Image::init('uploads/check_offset.jpg')->crop(84, 100);
+$src = Image::init('uploads/petr.jpg')->crop(84, 100);
 test_image($src);
 
-$src = Image::init('uploads/check_offset.jpg')->crop(85, 100);
+$src = Image::init('uploads/petr.jpg')->crop(85, 100);
 test_image($src);
 
-$src = Image::init('uploads/check_offset.jpg')->crop(86, 100);
+$src = Image::init('uploads/petr.jpg')->crop(86, 100);
+test_image($src);
+
+echo "<br>\n";
+
+// check place offset
+
+$src = Image::init('uploads/petr.jpg')->place(81, 100);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->place(82, 100);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->place(83, 100);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->place(84, 100);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->place(85, 100);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->place(86, 100);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->place(87, 100);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->place(88, 100);
+test_image($src);
+
+echo "<br>\n";
+
+// gifs
+
+$src = Image::init('uploads/parrot.gif')->place(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/parrot.gif')->disableAlpha()->bgColor('ddd')->place(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/cs-137.gif')->place(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/cs-137.gif')->disableAlpha()->place(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/cs-137.gif')->noBottomOffset()->crop(300, 150);
+test_image($src);
+
+echo "<br>\n";
+
+// exif rotate
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_1.jpg')->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_2.jpg')->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_3.jpg')->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_4.jpg')->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_5.jpg')->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_6.jpg')->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_7.jpg')->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_8.jpg')->fitHeight(125);
+test_image($src);
+
+echo "<br>\n";
+
+// exif rotate disabled
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_1.jpg')->noExifRotate()->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_2.jpg')->noExifRotate()->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_3.jpg')->noExifRotate()->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_4.jpg')->noExifRotate()->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_5.jpg')->noExifRotate()->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_6.jpg')->noExifRotate()->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_7.jpg')->noExifRotate()->fitHeight(125);
+test_image($src);
+
+$src = Image::init('uploads/exif/rlukeman_waterfall_8.jpg')->noExifRotate()->fitHeight(125);
 test_image($src);
 
 ?>

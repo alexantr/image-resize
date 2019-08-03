@@ -21,42 +21,34 @@ class Creator
      * @var string base directory where resized images are saving
      */
     public static $resizedBaseDir = '/resized';
-
     /**
      * @var int min image resolution size
      */
     public static $minSize = 8;
-
     /**
      * @var int max image resolution size
      */
     public static $maxSize = 3072;
-
     /**
      * @var int min jpeg quality
      */
     public static $minQuality = 10;
-
     /**
      * @var int max jpeg quality
      */
     public static $maxQuality = 100;
-
     /**
      * @var int default jpeg quality
      */
     public static $defaultQuality = 90;
-
     /**
      * @var string default background color
      */
     public static $defaultBgColor = 'fff';
-
     /**
      * @var array allowed mime types
      */
     public static $mimeTypes = array('image/gif', 'image/jpeg', 'image/png');
-
     /**
      * @var array allowed methods
      */
@@ -67,27 +59,22 @@ class Creator
         self::RESIZE_FIT_HEIGHT,
         self::RESIZE_PLACE,
     );
-
     /**
      * @var string custom path to default image
      */
     public static $defaultImagePath;
-
     /**
      * @var string custom path to default silhouette image
      */
     public static $defaultSilhouettePath;
-
     /**
      * @var bool generate progressive jpegs
      */
     public static $enableProgressiveJpeg = false;
-
     /**
      * @var bool force imagick disabled
      */
     public static $imagickDisabled = false;
-
     /**
      * @var int PNG compression level (0..9)
      */
@@ -126,6 +113,7 @@ class Creator
         $no_bottom_offset = $params['no_bottom_offset'];
         $disable_copy = $params['disable_copy'];
         $skip_small = $params['skip_small'];
+        $no_exif_rotate = $params['no_exif_rotate'];
         $image_url = $params['image_url'];
 
         // wrong params
@@ -209,6 +197,9 @@ class Creator
         }
 
         $mime_type = $size['mime'];
+        $is_jpeg = $mime_type == 'image/jpeg';
+        $is_png = $mime_type == 'image/png';
+        $is_gif = $mime_type == 'image/gif';
 
         // create dir
         $dir_path = dirname($dest_path);
@@ -221,7 +212,7 @@ class Creator
         $orientation = 1;
 
         // try to read exif orientation
-        if (function_exists('exif_read_data') && $mime_type == 'image/jpeg') {
+        if (!$no_exif_rotate && $is_jpeg && function_exists('exif_read_data')) {
             $exif = @exif_read_data($orig_path);
             if (!empty($exif['Orientation'])) {
                 $orientation = $exif['Orientation'];
@@ -323,14 +314,12 @@ class Creator
         // imagick
         if (!self::$imagickDisabled && extension_loaded('imagick')) {
             try {
-                $im = new \Imagick($orig_path);
+                $im = new \Imagick($orig_path . ($is_gif ? '[0]' : ''));
                 $im->stripImage();
 
                 $rgb = Helper::hex2rgb($bg_color);
-                $use_alpha = !$disable_alpha && !$as_jpeg && $mime_type == 'image/png';
-
                 $fill_color = new \ImagickPixel();
-                if ($use_alpha) {
+                if (!$disable_alpha && !$as_jpeg && !$is_jpeg) {
                     $fill_color->setColor("rgba({$rgb['r']}, {$rgb['g']}, {$rgb['b']}, 0)");
                 } else {
                     $fill_color->setColor("rgb({$rgb['r']}, {$rgb['g']}, {$rgb['b']})");
@@ -357,7 +346,7 @@ class Creator
                 if ($method == self::RESIZE_CROP) {
                     $im->cropImage($src_w - $crop_x * 2, $src_h - $crop_y_init * 2, $crop_x, $crop_y);
                     // https://www.php.net/manual/ru/imagick.cropimage.php#97232
-                    if ($mime_type == 'image/gif') {
+                    if ($is_gif) {
                         $im->setImagePage(0, 0, 0, 0);
                     }
                     $im->resizeImage($width, $height, \Imagick::FILTER_LANCZOS, 1, false);
@@ -367,9 +356,9 @@ class Creator
 
                 $new_im->compositeImage($im, \Imagick::COMPOSITE_DEFAULT, $dst_x, $dst_y);
 
-                if ($mime_type == 'image/png' && !$as_jpeg) {
+                if ($is_png && !$as_jpeg) {
                     $new_im->writeImage('png:' . $dest_path);
-                } elseif ($mime_type == 'image/gif' && !$as_jpeg) {
+                } elseif ($is_gif && !$as_jpeg) {
                     $new_im->writeImage('gif:' . $dest_path);
                 } else {
                     $new_im->setImageCompression(\Imagick::COMPRESSION_JPEG);
@@ -396,14 +385,12 @@ class Creator
         }
 
         // gd
-        if ($mime_type == 'image/gif') {
+        if ($is_gif) {
             $im = imagecreatefromgif($orig_path);
-        } elseif ($mime_type == 'image/png') {
+        } elseif ($is_png) {
             $im = imagecreatefrompng($orig_path);
-        } elseif ($mime_type == 'image/jpeg') {
-            $im = imagecreatefromjpeg($orig_path);
         } else {
-            $im = false;
+            $im = imagecreatefromjpeg($orig_path);
         }
 
         if ($im === false) {
@@ -428,7 +415,7 @@ class Creator
         // copying
         $rgb = Helper::hex2rgb($bg_color);
         $new_im = imagecreatetruecolor($width, $height);
-        if (!$disable_alpha && !$as_jpeg && $mime_type == 'image/png') {
+        if (!$disable_alpha && !$as_jpeg && $is_png) {
             imagealphablending($new_im, false);
             imagesavealpha($new_im, true);
             $color = imagecolorallocatealpha($new_im, $rgb['r'], $rgb['g'], $rgb['b'], 127);
@@ -440,10 +427,10 @@ class Creator
         imagecopyresampled($new_im, $im, $dst_x, $dst_y, $crop_x, $crop_y, $new_w, $new_h, $src_w, $src_h);
 
         // saving
-        if ($mime_type == 'image/png' && !$as_jpeg) {
+        if ($is_png && !$as_jpeg) {
             $level = min(9, max(0, self::$gdPngCompressionLevel));
             imagepng($new_im, $dest_path, $level);
-        } elseif ($mime_type == 'image/gif' && !$as_jpeg) {
+        } elseif ($is_gif && !$as_jpeg) {
             imagegif($new_im, $dest_path);
         } else {
             if (self::$enableProgressiveJpeg) {

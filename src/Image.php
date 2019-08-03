@@ -11,56 +11,50 @@ class Image
      * @var string image path relative to site base path
      */
     protected $imageUrl;
-
     /**
      * @var int default jpeg quality
      */
     protected $quality;
-
     /**
      * @var string background color
      */
     protected $bgColor;
-
     /**
      * @var bool use silhouette placeholder for missing images
      */
     protected $silhouette = false;
-
     /**
      * @var bool disable alpha channel for png and gif
      */
     protected $disableAlpha = false;
-
     /**
      * @var bool place image 2/3 upper for portraits. Do not work with enabled noTopOffset, noBottomOffset
      */
     protected $placeUpper = false;
-
     /**
      * @var bool crop images w/o top offset
      */
     protected $noTopOffset = false;
-
     /**
      * @var bool crop images w/o bottom offset
      */
     protected $noBottomOffset = false;
-
     /**
      * @var bool do not resize images with smaller width and height (just copy)
      */
     protected $skipSmall = false;
-
     /**
      * @var bool disable copying images
      */
     protected $disableCopy = false;
-
     /**
      * @var bool force saving to jpeg
      */
     protected $asJpeg = false;
+    /**
+     * @var bool disable autorotating based on EXIF data
+     */
+    protected $noExifRotate = false;
 
     /**
      * @param string $imageUrl
@@ -193,6 +187,17 @@ class Image
     }
 
     /**
+     * Disable autorotating based on EXIF data
+     * @param bool|true $value
+     * @return $this
+     */
+    public function noExifRotate($value = true)
+    {
+        $this->noExifRotate = $value;
+        return $this;
+    }
+
+    /**
      * Crop
      * @param int $width
      * @param int $height
@@ -296,19 +301,20 @@ class Image
 
         // set dir name with all params
         $resized_dir = "{$width}-{$height}-{$method}";
-        $resized_dir .= ($this->quality != Creator::$defaultQuality ? "-q{$this->quality}" : '');
-        $resized_dir .= (($this->disableAlpha || $method == Creator::RESIZE_PLACE) && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '');
+        $resized_dir .= $this->quality != Creator::$defaultQuality ? "-q{$this->quality}" : '';
+        $resized_dir .= ($this->disableAlpha || $this->asJpeg || $method == Creator::RESIZE_PLACE) && $this->bgColor != Creator::$defaultBgColor ? "-{$this->bgColor}" : '';
         // additional params
         $params = '';
-        $params .= ($this->silhouette ? 's' : '');
-        $params .= ($this->disableAlpha ? 'a' : '');
-        $params .= ($this->asJpeg ? 'j' : '');
-        $params .= ($method == Creator::RESIZE_CROP && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '');
-        $params .= ($method == Creator::RESIZE_CROP && $this->noTopOffset ? 'n' : '');
-        $params .= ($method == Creator::RESIZE_CROP && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '');
-        $params .= ($this->disableCopy ? 'c' : '');
-        $params .= (!$this->disableCopy && $this->skipSmall ? 't' : '');
-        $resized_dir .= (!empty($params) ? '-' . $params : '');
+        $params .= $this->silhouette ? 's' : '';
+        $params .= $this->disableAlpha ? 'a' : '';
+        $params .= $this->asJpeg ? 'j' : '';
+        $params .= $method == Creator::RESIZE_CROP && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '';
+        $params .= $method == Creator::RESIZE_CROP && $this->noTopOffset ? 'n' : '';
+        $params .= $method == Creator::RESIZE_CROP && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '';
+        $params .= $this->disableCopy ? 'c' : '';
+        $params .= !$this->disableCopy && $this->skipSmall ? 't' : '';
+        $params .= $this->noExifRotate ? 'r' : '';
+        $resized_dir .= !empty($params) ? '-' . $params : '';
 
         return Helper::getBaseUrl() . Creator::$resizedBaseDir . '/' . $resized_dir . '/' . $image_url;
     }
