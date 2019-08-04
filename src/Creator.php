@@ -113,6 +113,8 @@ class Creator
         $bg_color = $params['bg_color'];
         $silhouette = $params['silhouette'];
         $as_jpeg = $params['as_jpeg'];
+        $as_png = $params['as_png'];
+        $as_gif = $params['as_gif'];
         $place_upper = $params['place_upper'];
         $no_top_offset = $params['no_top_offset'];
         $no_bottom_offset = $params['no_bottom_offset'];
@@ -147,8 +149,8 @@ class Creator
         // original image abs path
         $orig_path = $webroot . '/' . $image_url;
 
-        // try to deal with jpeg forcing
-        if (!is_file($orig_path) && $as_jpeg) {
+        // try to deal with format forcing
+        if (!is_file($orig_path) && ($as_jpeg || $as_png || $as_gif)) {
             $orig_dirname = dirname($orig_path);
             $filename = pathinfo($orig_path, PATHINFO_FILENAME);
             $orig_ext = pathinfo($filename, PATHINFO_EXTENSION);
@@ -206,6 +208,25 @@ class Creator
         $is_jpeg = $mime_type == 'image/jpeg';
         $is_png = $mime_type == 'image/png';
         $is_gif = $mime_type == 'image/gif';
+
+        if ($as_jpeg) {
+            $as_png = false;
+            $as_gif = false;
+        } elseif ($as_png) {
+            $as_jpeg = false;
+            $as_gif = false;
+        } elseif ($as_gif) {
+            $as_jpeg = false;
+            $as_png = false;
+        } else {
+            if ($is_gif) {
+                $as_gif = true;
+            } elseif ($is_png) {
+                $as_png = true;
+            } else {
+                $as_jpeg = true;
+            }
+        }
 
         // create dir
         $dir_path = dirname($dest_path);
@@ -349,9 +370,9 @@ class Creator
 
                 $rgb = Helper::hex2rgb($bg_color);
                 $fill_color = new \ImagickPixel();
-                if (!$as_jpeg && !$is_jpeg) {
+                if (!$as_jpeg) {
                     $alpha = round($rgb['a'] / 255, 2);
-                    if ($is_gif) {
+                    if ($as_gif) {
                         if ($rgb['a'] > 127) {
                             $alpha = 1;
                         } else {
@@ -401,9 +422,9 @@ class Creator
                     $new_im->modulateImage(100, 0, 100);
                 }
 
-                if ($is_png && !$as_jpeg) {
+                if ($as_png) {
                     $new_im->writeImage('png:' . $dest_path);
-                } elseif ($is_gif && !$as_jpeg) {
+                } elseif ($as_gif) {
                     $new_im->writeImage('gif:' . $dest_path);
                 } else {
                     $new_im->setImageCompression(\Imagick::COMPRESSION_JPEG);
@@ -460,7 +481,7 @@ class Creator
         // copying
         $rgb = Helper::hex2rgb($bg_color);
         $new_im = imagecreatetruecolor($width, $height);
-        if (!$as_jpeg && $is_png) {
+        if ($as_png) {
             imagealphablending($new_im, false);
             imagesavealpha($new_im, true);
             $alpha = 127 - 127 * $rgb['a'] / 255;
@@ -497,10 +518,10 @@ class Creator
         }
 
         // saving
-        if ($is_png && !$as_jpeg) {
+        if ($as_png) {
             $level = min(9, max(0, self::$gdPngCompressionLevel));
             imagepng($new_im, $dest_path, $level);
-        } elseif ($is_gif && !$as_jpeg) {
+        } elseif ($as_gif) {
             imagegif($new_im, $dest_path);
         } else {
             if (self::$enableProgressiveJpeg) {

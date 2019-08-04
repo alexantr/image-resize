@@ -48,6 +48,14 @@ class Image
      */
     protected $asJpeg = false;
     /**
+     * @var bool force saving to png
+     */
+    protected $asPng = false;
+    /**
+     * @var bool force saving to gif
+     */
+    protected $asGif = false;
+    /**
      * @var bool disable autorotating based on EXIF data
      */
     protected $noExifRotate = false;
@@ -165,13 +173,35 @@ class Image
     }
 
     /**
-     * Force saving PNGs and GIFs to jpeg
+     * Force saving all to jpeg
      * @param bool|true $value
      * @return $this
      */
     public function asJpeg($value = true)
     {
         $this->asJpeg = $value;
+        return $this;
+    }
+
+    /**
+     * Force saving all to png
+     * @param bool|true $value
+     * @return $this
+     */
+    public function asPng($value = true)
+    {
+        $this->asPng = $value;
+        return $this;
+    }
+
+    /**
+     * Force saving all to gif
+     * @param bool|true $value
+     * @return $this
+     */
+    public function asGif($value = true)
+    {
+        $this->asGif = $value;
         return $this;
     }
 
@@ -323,13 +353,31 @@ class Image
             return Helper::getBlankImageUrl();
         }
 
-        // force jpeg
+        // force format
         if ($this->asJpeg) {
             if (!in_array($dest_ext, array('jpeg', 'jpg'))) {
                 $image_url .= '.jpg';
             } else {
                 $this->asJpeg = false;
             }
+            $this->asPng = false;
+            $this->asGif = false;
+        } elseif ($this->asPng) {
+            if ($dest_ext != 'png') {
+                $image_url .= '.png';
+            } else {
+                $this->asPng = false;
+            }
+            $this->asJpeg = false;
+            $this->asGif = false;
+        } elseif ($this->asGif) {
+            if ($dest_ext != 'gif') {
+                $image_url .= '.gif';
+            } else {
+                $this->asGif = false;
+            }
+            $this->asJpeg = false;
+            $this->asPng = false;
         }
 
         $can_y_offset = $method == Creator::FIT_CROP || $method == Creator::FIT_FILL;
@@ -341,7 +389,7 @@ class Image
         // additional params
         $params = '';
         $params .= $this->silhouette ? 's' : '';
-        $params .= $this->asJpeg ? 'j' : '';
+        $params .= $this->asJpeg ? 'j' : ($this->asPng ? 'p' : ($this->asGif ? 'f' : ''));
         $params .= $can_y_offset && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '';
         $params .= $can_y_offset && $this->noTopOffset ? 'n' : '';
         $params .= $can_y_offset && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '';

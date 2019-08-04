@@ -71,6 +71,8 @@ class Helper
                 'bg_color' => Helper::normalizeHexColor($m[6]),
                 'silhouette' => in_array('s', $params),
                 'as_jpeg' => in_array('j', $params),
+                'as_png' => in_array('p', $params),
+                'as_gif' => in_array('f', $params),
                 'place_upper' => in_array('u', $params),
                 'no_top_offset' => in_array('n', $params),
                 'no_bottom_offset' => in_array('b', $params),
