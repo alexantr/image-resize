@@ -1,8 +1,9 @@
 <?php
-require '../vendor/autoload.php';
 
 use Alexantr\ImageResize\Helper;
 use Alexantr\ImageResize\Image;
+
+require '../vendor/autoload.php';
 
 /**
  * img tag helper
@@ -10,7 +11,7 @@ use Alexantr\ImageResize\Image;
  */
 function test_image($src)
 {
-    echo '<img src="' . $src . '" alt="">' . "\n";
+    echo '<img src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '" alt="">' . "\n";
 }
 
 ?>
@@ -22,7 +23,13 @@ function test_image($src)
     <style>
         img {
             border: 1px solid #999;
-            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAKklEQVR42mL5//8/Azbw+PFjrOJMDCSCUQ3EABZc4S0rKzsaSvTTABBgAMyfCMsY4B9iAAAAAElFTkSuQmCC') repeat 0 0;
+            background: url('data:image/gif;base64,R0lGODlhEAAQAIAAAP///+Li4iH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7') repeat 0 0;
+        }
+        table {
+            border: 0;
+        }
+        table td {
+            padding: 0 10px 0 0;
         }
     </style>
 </head>
@@ -111,45 +118,6 @@ $src = Image::init('uploads/folder/antelope_canyon.jpg')->grayscale()->fit(150, 
 test_image($src);
 
 $src = Image::init('uploads/colorwheel.png')->grayscale()->fit(150, 150);
-test_image($src);
-?>
-
-<p>Check URL</p>
-
-<?php
-// double "../"
-$url = 'uploads/folder/../../uploads/folder/floating_leaves.jpg';
-echo '<!-- ' . Helper::cleanImageUrl($url) . ' -->' . "\n";
-$src = Image::init($url)->fitHeight(150);
-test_image($src);
-
-$src = Image::init('uploads/./././folder/../Cat.jpeg')->crop(150, 150);
-test_image($src);
-
-$src = Image::init('./uploads/cs-137.gif')->crop(150, 150);
-test_image($src);
-
-$src = Image::init('example/../uploads/petr.jpg')->crop(120, 150);
-test_image($src);
-
-$src = Image::init('uploads/parrot.gif?foo=bar')->bgColor('fff')->crop(190, 150);
-test_image($src);
-
-$src = Image::init('../example/uploads/cat.gif#foobar')->fitWidth(150);
-test_image($src);
-
-// variant with path relative to document root
-$url = Helper::getBaseUrl() . '/uploads/Apple.png';
-echo '<!-- ' . $url . ' -->' . "\n";
-$src = Image::init($url)->fill(120, 150);
-test_image($src);
-
-// wrong url
-$src = Image::init('folder/foo.bar')->crop(150, 150);
-test_image($src);
-
-// wrong url - no extension
-$src = Image::init('foobar')->crop(150, 150);
 test_image($src);
 ?>
 
@@ -456,6 +424,43 @@ test_image($src);
 $src = Image::init('uploads/exif/rlukeman_waterfall_8.jpg')->noExifRotate()->fitHeight(125);
 test_image($src);
 ?>
+
+<p>URLs</p>
+
+<?php
+$urls = array(
+    // double "../"
+    'uploads/folder/../../uploads/folder/floating_leaves.jpg',
+    'uploads/./././folder/../Cat.jpeg',
+    './uploads/cs-137.gif',
+    'example/../uploads/petr.jpg',
+    'uploads/parrot.gif?foo=bar',
+    '../example/uploads/cat.gif#foobar',
+    // variant with path relative to document root
+    Helper::getBaseUrl() . '/uploads/Apple.png',
+    // wrong url
+    'folder/foo.bar',
+    // wrong url - no extension
+    'foobar',
+);
+?>
+
+<table>
+<?php foreach ($urls as $url): ?>
+    <tr>
+        <td>
+            <?php
+            $src = Image::init($url)->crop(99, 99);
+            test_image($src);
+            ?>
+        </td>
+        <td>
+            Original: <code><?= $url ?></code><br>
+            Filtered: <code><?= Helper::cleanImageUrl($url) ?></code>
+        </td>
+    </tr>
+<?php endforeach; ?>
+</table>
 
 </body>
 </html>
