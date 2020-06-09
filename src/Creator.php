@@ -122,6 +122,7 @@ class Creator
         $skip_small = $params['skip_small'];
         $no_exif_rotate = $params['no_exif_rotate'];
         $grayscale = $params['grayscale'];
+        $abs_offset = $params['abs_offset'];
         $image_url = $params['image_url'];
 
         // wrong params
@@ -360,6 +361,12 @@ class Creator
             $new_h = round($src_h * $ratio);
             $width = $new_w;
             $height = $new_h;
+        }
+
+        // apply abs offset
+        if ($abs_offset[0] !== 0 || $abs_offset[1] !== 0) {
+            $dst_x += $abs_offset[0];
+            $dst_y += $abs_offset[1];
         }
 
         // imagick

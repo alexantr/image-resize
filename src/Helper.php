@@ -59,9 +59,23 @@ class Helper
     public static function parsePath($path)
     {
         $methods = implode('|', Creator::$methods);
-        if (preg_match('{^(([0-9]{1,4})-([0-9]{1,4})-(' . $methods . ')(?:-q([0-9]{1,2}|100))?(?:-([a-f0-9]{3}|[a-f0-9]{4}|[a-f0-9]{6}|[a-f0-9]{8}))?(?:-([a-z]+))?)/(.+)}', $path, $m)) {
+        if (preg_match('{^(([0-9]{1,4})-([0-9]{1,4})-(' . $methods . ')(?:-q([0-9]{1,2}|100))?(?:-([a-f0-9]{3}|[a-f0-9]{4}|[a-f0-9]{6}|[a-f0-9]{8}))?(?:-([a-z]+))?(?:-o([lr][0-9]+)?([tb][0-9]+)?)?)/(.+)}', $path, $m)) {
             $params = $m[7];
             $params = str_split($params);
+            // abs offset
+            $abs_offset = array(0, 0);
+            $offset_x_param = isset($m[8]) ? $m[8] : '';
+            $offset_y_param = isset($m[9]) ? $m[9] : '';
+            if ($offset_x_param !== '') {
+                $offset_x_param_dir = substr($offset_x_param, 0, 1);
+                $offset_x_param_value = (int)substr($offset_x_param, 1);
+                $abs_offset[0] = $offset_x_param_dir == 'r' ? -$offset_x_param_value : $offset_x_param_value;
+            }
+            if ($offset_y_param !== '') {
+                $offset_y_param_dir = substr($offset_y_param, 0, 1);
+                $offset_y_param_value = (int)substr($offset_y_param, 1);
+                $abs_offset[1] = $offset_y_param_dir == 'b' ? -$offset_y_param_value : $offset_y_param_value;
+            }
             return array(
                 'dir_name' => $m[1],
                 'width' => (int)$m[2],
@@ -80,7 +94,8 @@ class Helper
                 'skip_small' => in_array('t', $params),
                 'no_exif_rotate' => in_array('r', $params),
                 'grayscale' => in_array('g', $params),
-                'image_url' => trim($m[8]),
+                'abs_offset' => $abs_offset,
+                'image_url' => trim($m[10]),
             );
         } else {
             return false;

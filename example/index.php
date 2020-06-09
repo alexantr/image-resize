@@ -425,6 +425,25 @@ $src = Image::init('uploads/exif/rlukeman_waterfall_8.jpg')->noExifRotate()->fit
 test_image($src);
 ?>
 
+<p>Absolute offset</p>
+
+<?php
+$src = Image::init('uploads/Apple.png')->absOffset(0, 0)->fill(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->absOffset(-20, 20)->fill(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->absOffset(20, -20)->fill(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->bgColor('#fff')->asJpeg()->absOffset(0, 25)->fill(100, 150);
+test_image($src);
+
+$src = Image::init('uploads/Apple.png')->bgColor('#fff')->asJpeg()->absOffset(25, 0)->fill(200, 150);
+test_image($src);
+?>
+
 <p>URLs</p>
 
 <?php

@@ -63,6 +63,10 @@ class Image
      * @var bool grayscale filter
      */
     protected $grayscale = false;
+    /**
+     * @var int[] absolute offset in pixels (x px, y px)
+     */
+    protected $absOffset = array(0, 0);
 
     /**
      * @param string $imageUrl
@@ -224,6 +228,18 @@ class Image
     public function grayscale($value = true)
     {
         $this->grayscale = $value;
+        return $this;
+    }
+
+    /**
+     * Add absolute offset in pixels (x px, y px)
+     * @param int $x
+     * @param int $y
+     * @return $this
+     */
+    public function absOffset($x = 0, $y = 0)
+    {
+        $this->absOffset = array((int)$x, (int)$y);
         return $this;
     }
 
@@ -397,6 +413,21 @@ class Image
         $params .= !$this->disableCopy && $this->skipSmall ? 't' : '';
         $params .= $this->noExifRotate ? 'r' : '';
         $params .= $this->grayscale ? 'g' : '';
+        // offset
+        if ($this->absOffset[0] !== 0 || $this->absOffset[1] !== 0) {
+            $offset_params = 'o';
+            if ($this->absOffset[0] > 0) {
+                $offset_params .= sprintf('l%d', $this->absOffset[0]);
+            } elseif ($this->absOffset[0] < 0) {
+                $offset_params .= sprintf('r%d', abs($this->absOffset[0]));
+            }
+            if ($this->absOffset[1] > 0) {
+                $offset_params .= sprintf('t%d', $this->absOffset[1]);
+            } elseif ($this->absOffset[1] < 0) {
+                $offset_params .= sprintf('b%d', abs($this->absOffset[1]));
+            }
+            $params .= (!empty($params) ? '-' : '') . $offset_params;
+        }
         $resized_dir .= !empty($params) ? '-' . $params : '';
 
         return Helper::getBaseUrl() . Creator::$resizedBaseDir . '/' . $resized_dir . '/' . $image_url;
