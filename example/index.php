@@ -442,6 +442,12 @@ test_image($src);
 
 $src = Image::init('uploads/Apple.png')->bgColor('#fff')->asJpeg()->absOffset(25, 0)->fill(200, 150);
 test_image($src);
+
+$src = Image::init('uploads/not-found.png')->absOffset(50, 50)->fill(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/not-found.png')->silhouette()->absOffset(50, 50)->fill(150, 150);
+test_image($src);
 ?>
 
 <p>URLs</p>

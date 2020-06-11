@@ -187,6 +187,8 @@ class Creator
             if (is_file($dest_path)) {
                 self::showImage($dest_path);
             }
+            // reset offest
+            $abs_offset = array(0, 0);
         }
 
         // can't find default image
