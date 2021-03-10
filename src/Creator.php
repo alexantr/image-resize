@@ -51,7 +51,7 @@ class Creator
     /**
      * @var array allowed mime types
      */
-    public static $mimeTypes = array('image/gif', 'image/jpeg', 'image/png');
+    public static $mimeTypes = array('image/gif', 'image/jpeg', 'image/png', 'image/webp');
     /**
      * @var array allowed methods
      */
@@ -211,6 +211,7 @@ class Creator
         $is_jpeg = $mime_type == 'image/jpeg';
         $is_png = $mime_type == 'image/png';
         $is_gif = $mime_type == 'image/gif';
+        $is_webp = $mime_type == 'image/webp';
 
         if ($as_jpeg) {
             $as_png = false;
@@ -464,6 +465,12 @@ class Creator
             $im = imagecreatefromgif($orig_path);
         } elseif ($is_png) {
             $im = imagecreatefrompng($orig_path);
+        } elseif ($is_webp) {
+            if (function_exists('imagecreatefromwebp')) {
+                $im = imagecreatefromwebp($orig_path);
+            } else {
+                $im = false;
+            }
         } else {
             $im = imagecreatefromjpeg($orig_path);
         }
