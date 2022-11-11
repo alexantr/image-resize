@@ -12,7 +12,7 @@ class Image
      */
     protected $imageUrl;
     /**
-     * @var int default jpeg quality
+     * @var int default jpeg or webp quality
      */
     protected $quality;
     /**
@@ -56,6 +56,10 @@ class Image
      */
     protected $asGif = false;
     /**
+     * @var bool force saving to webp
+     */
+    protected $asWebp = false;
+    /**
      * @var bool disable autorotating based on EXIF data
      */
     protected $noExifRotate = false;
@@ -88,7 +92,7 @@ class Image
     }
 
     /**
-     * Set jpeg quality
+     * Set jpeg or webp quality
      * @param int|string $quality
      * @return $this
      */
@@ -206,6 +210,17 @@ class Image
     public function asGif($value = true)
     {
         $this->asGif = $value;
+        return $this;
+    }
+
+    /**
+     * Force saving all to webp
+     * @param bool|true $value
+     * @return $this
+     */
+    public function asWebp($value = true)
+    {
+        $this->asWebp = $value;
         return $this;
     }
 
@@ -365,7 +380,7 @@ class Image
         // check extension
         $dest_ext = pathinfo($image_url, PATHINFO_EXTENSION);
         $dest_ext = strtolower($dest_ext);
-        if (empty($dest_ext) || !in_array($dest_ext, array('jpeg', 'jpg', 'png', 'gif'))) {
+        if (empty($dest_ext) || !in_array($dest_ext, array('jpeg', 'jpg', 'png', 'gif', 'webp'))) {
             return Helper::getBlankImageUrl();
         }
 
@@ -378,6 +393,7 @@ class Image
             }
             $this->asPng = false;
             $this->asGif = false;
+            $this->asWebp = false;
         } elseif ($this->asPng) {
             if ($dest_ext != 'png') {
                 $image_url .= '.png';
@@ -386,6 +402,7 @@ class Image
             }
             $this->asJpeg = false;
             $this->asGif = false;
+            $this->asWebp = false;
         } elseif ($this->asGif) {
             if ($dest_ext != 'gif') {
                 $image_url .= '.gif';
@@ -394,6 +411,16 @@ class Image
             }
             $this->asJpeg = false;
             $this->asPng = false;
+            $this->asWebp = false;
+        } elseif ($this->asWebp) {
+            if ($dest_ext != 'webp') {
+                $image_url .= '.webp';
+            } else {
+                $this->asWebp = false;
+            }
+            $this->asJpeg = false;
+            $this->asPng = false;
+            $this->asGif = false;
         }
 
         $can_y_offset = $method == Creator::FIT_CROP || $method == Creator::FIT_FILL;
@@ -403,9 +430,8 @@ class Image
         $resized_dir .= $this->quality !== Creator::$defaultQuality ? "-q{$this->quality}" : '';
         $resized_dir .= $this->bgColor !== Creator::$defaultBgColor ? "-{$this->bgColor}" : '';
         // additional params
-        $params = '';
-        $params .= $this->silhouette ? 's' : '';
-        $params .= $this->asJpeg ? 'j' : ($this->asPng ? 'p' : ($this->asGif ? 'f' : ''));
+        $params = $this->silhouette ? 's' : '';
+        $params .= $this->asJpeg ? 'j' : ($this->asPng ? 'p' : ($this->asGif ? 'f' : ($this->asWebp ? 'w' : '')));
         $params .= $can_y_offset && !$this->noTopOffset && !$this->noBottomOffset && $this->placeUpper ? 'u' : '';
         $params .= $can_y_offset && $this->noTopOffset ? 'n' : '';
         $params .= $can_y_offset && !$this->noTopOffset && $this->noBottomOffset ? 'b' : '';

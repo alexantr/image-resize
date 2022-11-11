@@ -4,10 +4,6 @@ namespace Alexantr\ImageResize;
 
 class Helper
 {
-    const IMG_FLIP_HORIZONTAL = 0;
-    const IMG_FLIP_VERTICAL = 1;
-    const IMG_FLIP_BOTH = 2;
-
     /**
      * @return string
      */
@@ -87,6 +83,7 @@ class Helper
                 'as_jpeg' => in_array('j', $params),
                 'as_png' => in_array('p', $params),
                 'as_gif' => in_array('f', $params),
+                'as_webp' => in_array('w', $params),
                 'place_upper' => in_array('u', $params),
                 'no_top_offset' => in_array('n', $params),
                 'no_bottom_offset' => in_array('b', $params),
@@ -201,7 +198,9 @@ class Helper
      */
     public static function flopImage($image)
     {
-        if (!function_exists('imageflip')) {
+        if (function_exists('imageflip') && defined('IMG_FLIP_HORIZONTAL')) {
+            imageflip($image, IMG_FLIP_HORIZONTAL);
+        } else {
             $max_x = imagesx($image) - 1;
             $half_x = $max_x / 2;
             $sy = imagesy($image);
@@ -211,8 +210,6 @@ class Helper
                 imagecopy($image, $image, $x, 0, $max_x - $x, 0, 1, $sy);
                 imagecopy($image, $temp_image, $max_x - $x, 0, 0, 0, 1, $sy);
             }
-        } else {
-            imageflip($image, IMG_FLIP_HORIZONTAL);
         }
     }
 

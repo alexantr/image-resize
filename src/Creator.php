@@ -41,7 +41,7 @@ class Creator
      */
     public static $maxQuality = 100;
     /**
-     * @var int default jpeg quality
+     * @var int default jpeg and webp quality
      */
     public static $defaultQuality = 90;
     /**
@@ -115,6 +115,7 @@ class Creator
         $as_jpeg = $params['as_jpeg'];
         $as_png = $params['as_png'];
         $as_gif = $params['as_gif'];
+        $as_webp = $params['as_webp'];
         $place_upper = $params['place_upper'];
         $no_top_offset = $params['no_top_offset'];
         $no_bottom_offset = $params['no_bottom_offset'];
@@ -151,11 +152,11 @@ class Creator
         $orig_path = $webroot . '/' . $image_url;
 
         // try to deal with format forcing
-        if (!is_file($orig_path) && ($as_jpeg || $as_png || $as_gif)) {
+        if (!is_file($orig_path) && ($as_jpeg || $as_png || $as_gif || $as_webp)) {
             $orig_dirname = dirname($orig_path);
             $filename = pathinfo($orig_path, PATHINFO_FILENAME);
             $orig_ext = pathinfo($filename, PATHINFO_EXTENSION);
-            if (!empty($orig_ext) && in_array($orig_ext, array('jpeg', 'jpg', 'png', 'gif')) && is_file($orig_dirname . '/' . $filename)) {
+            if (!empty($orig_ext) && in_array($orig_ext, array('jpeg', 'jpg', 'png', 'gif', 'webp')) && is_file($orig_dirname . '/' . $filename)) {
                 $orig_path = $orig_dirname . '/' . $filename;
             }
         }
@@ -216,17 +217,26 @@ class Creator
         if ($as_jpeg) {
             $as_png = false;
             $as_gif = false;
+            $as_webp = false;
         } elseif ($as_png) {
             $as_jpeg = false;
             $as_gif = false;
+            $as_webp = false;
         } elseif ($as_gif) {
             $as_jpeg = false;
             $as_png = false;
+            $as_webp = false;
+        } elseif ($as_webp) {
+            $as_jpeg = false;
+            $as_png = false;
+            $as_gif = false;
         } else {
             if ($is_gif) {
                 $as_gif = true;
             } elseif ($is_png) {
                 $as_png = true;
+            } elseif ($is_webp) {
+                $as_webp = true;
             } else {
                 $as_jpeg = true;
             }
@@ -436,6 +446,9 @@ class Creator
                     $new_im->writeImage('png:' . $dest_path);
                 } elseif ($as_gif) {
                     $new_im->writeImage('gif:' . $dest_path);
+                } elseif ($as_webp) {
+                    $new_im->setImageCompressionQuality($quality);
+                    $new_im->writeImage('webp:' . $dest_path);
                 } else {
                     $new_im->setImageCompression(\Imagick::COMPRESSION_JPEG);
                     $new_im->setImageCompressionQuality($quality);
@@ -539,6 +552,8 @@ class Creator
             imagepng($new_im, $dest_path, $level);
         } elseif ($as_gif) {
             imagegif($new_im, $dest_path);
+        } elseif ($as_webp && function_exists('imagewebp')) {
+            imagewebp($new_im, $dest_path, $quality);
         } else {
             if (self::$enableProgressiveJpeg) {
                 imageinterlace($new_im, 1);

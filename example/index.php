@@ -187,6 +187,25 @@ $src = Image::init('uploads/cs-137.gif')->noBottomOffset()->crop(300, 150);
 test_image($src);
 ?>
 
+<p>Webp</p>
+
+<?php
+$src = Image::init('uploads/webp/1_webp_a.webp')->fitHeight(150);
+test_image($src);
+
+$src = Image::init('uploads/webp/1_webp_a.webp')->quality(20)->fitHeight(150);
+test_image($src);
+
+$src = Image::init('uploads/webp/1_webp_a.webp')->bgColor('69f')->quality(50)->fitHeight(150);
+test_image($src);
+
+$src = Image::init('uploads/webp/yellow-rose-3.webp')->fitHeight(150);
+test_image($src);
+
+$src = Image::init('uploads/webp/yellow-rose-3.webp')->quality(20)->fitHeight(150);
+test_image($src);
+?>
+
 <p>Placeholder</p>
 
 <?php
@@ -301,6 +320,9 @@ test_image($src);
 
 $src = Image::init('uploads/cs-137.gif')->asPng()->bgColor('63c')->fill(150, 150);
 test_image($src);
+
+$src = Image::init('uploads/webp/1_webp_a.webp')->asPng()->fitHeight(150);
+test_image($src);
 ?>
 
 <p>Force gif</p>
@@ -319,6 +341,22 @@ $src = Image::init('uploads/folder/floating_leaves.jpg')->asGif()->fitHeight(150
 test_image($src);
 
 $src = Image::init('uploads/colorwheel.png')->asGif()->fitHeight(150);
+test_image($src);
+?>
+
+<p>Force webp</p>
+
+<?php
+$src = Image::init('uploads/cat.gif')->asWebp()->bgColor('0005')->quality(50)->fill(200, 150);
+test_image($src);
+
+$src = Image::init('uploads/petr.jpg')->asWebp()->quality(50)->fitHeight(150);
+test_image($src);
+
+$src = Image::init('uploads/folder/floating_leaves.jpg')->asWebp()->quality(50)->fill(150, 150);
+test_image($src);
+
+$src = Image::init('uploads/cs-137.gif')->asWebp()->bgColor('63c')->quality(30)->fill(150, 150);
 test_image($src);
 ?>
 
