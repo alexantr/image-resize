@@ -10,73 +10,73 @@ class Image
     /**
      * @var string image path relative to site base path
      */
-    protected $imageUrl;
+    protected string $imageUrl;
     /**
      * @var int default jpeg or webp quality
      */
-    protected $quality;
+    protected int $quality;
     /**
      * @var string background color
      */
-    protected $bgColor;
+    protected string $bgColor;
     /**
      * @var bool use silhouette placeholder for missing images
      */
-    protected $silhouette = false;
+    protected bool $silhouette = false;
     /**
      * @var bool place image 2/3 upper for portraits. Do not work with enabled noTopOffset, noBottomOffset
      */
-    protected $placeUpper = false;
+    protected bool $placeUpper = false;
     /**
      * @var bool crop images w/o top offset
      */
-    protected $noTopOffset = false;
+    protected bool $noTopOffset = false;
     /**
      * @var bool crop images w/o bottom offset
      */
-    protected $noBottomOffset = false;
+    protected bool $noBottomOffset = false;
     /**
      * @var bool do not resize images with smaller width and height (just copy)
      */
-    protected $skipSmall = false;
+    protected bool $skipSmall = false;
     /**
      * @var bool disable copying images
      */
-    protected $disableCopy = false;
+    protected bool $disableCopy = false;
     /**
      * @var bool force saving to jpeg
      */
-    protected $asJpeg = false;
+    protected bool $asJpeg = false;
     /**
      * @var bool force saving to png
      */
-    protected $asPng = false;
+    protected bool $asPng = false;
     /**
      * @var bool force saving to gif
      */
-    protected $asGif = false;
+    protected bool $asGif = false;
     /**
      * @var bool force saving to webp
      */
-    protected $asWebp = false;
+    protected bool $asWebp = false;
     /**
      * @var bool disable autorotating based on EXIF data
      */
-    protected $noExifRotate = false;
+    protected bool $noExifRotate = false;
     /**
      * @var bool grayscale filter
      */
-    protected $grayscale = false;
+    protected bool $grayscale = false;
     /**
      * @var int[] absolute offset in pixels (x px, y px)
      */
-    protected $absOffset = array(0, 0);
+    protected array $absOffset = [0, 0];
 
     /**
      * @param string $imageUrl
      * @return self
      */
-    public static function init($imageUrl)
+    public static function init(string $imageUrl)
     {
         return new static($imageUrl);
     }
@@ -84,7 +84,7 @@ class Image
     /**
      * @param string $imageUrl
      */
-    public function __construct($imageUrl)
+    public function __construct(string $imageUrl)
     {
         $this->imageUrl = $imageUrl;
         $this->quality = Creator::$defaultQuality;
@@ -96,7 +96,7 @@ class Image
      * @param int|string $quality
      * @return $this
      */
-    public function quality($quality)
+    public function quality(int|string $quality)
     {
         $this->quality = Helper::processQuality($quality);
         return $this;
@@ -107,7 +107,7 @@ class Image
      * @param string $hex
      * @return $this
      */
-    public function bgColor($hex)
+    public function bgColor(string $hex)
     {
         $this->bgColor = Helper::normalizeHexColor($hex);
         return $this;
@@ -118,7 +118,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function silhouette($value = true)
+    public function silhouette(bool $value = true)
     {
         $this->silhouette = $value;
         return $this;
@@ -130,7 +130,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function placeUpper($value = true)
+    public function placeUpper(bool $value = true)
     {
         $this->placeUpper = $value;
         return $this;
@@ -141,7 +141,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function noTopOffset($value = true)
+    public function noTopOffset(bool $value = true)
     {
         $this->noTopOffset = $value;
         return $this;
@@ -152,7 +152,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function noBottomOffset($value = true)
+    public function noBottomOffset(bool $value = true)
     {
         $this->noBottomOffset = $value;
         return $this;
@@ -163,7 +163,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function skipSmall($value = true)
+    public function skipSmall(bool $value = true)
     {
         $this->skipSmall = $value;
         return $this;
@@ -174,7 +174,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function disableCopy($value = true)
+    public function disableCopy(bool $value = true)
     {
         $this->disableCopy = $value;
         return $this;
@@ -185,7 +185,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function asJpeg($value = true)
+    public function asJpeg(bool $value = true)
     {
         $this->asJpeg = $value;
         return $this;
@@ -196,7 +196,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function asPng($value = true)
+    public function asPng(bool $value = true)
     {
         $this->asPng = $value;
         return $this;
@@ -207,7 +207,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function asGif($value = true)
+    public function asGif(bool $value = true)
     {
         $this->asGif = $value;
         return $this;
@@ -218,7 +218,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function asWebp($value = true)
+    public function asWebp(bool $value = true)
     {
         $this->asWebp = $value;
         return $this;
@@ -229,7 +229,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function noExifRotate($value = true)
+    public function noExifRotate(bool $value = true)
     {
         $this->noExifRotate = $value;
         return $this;
@@ -240,7 +240,7 @@ class Image
      * @param bool|true $value
      * @return $this
      */
-    public function grayscale($value = true)
+    public function grayscale(bool $value = true)
     {
         $this->grayscale = $value;
         return $this;
@@ -252,9 +252,9 @@ class Image
      * @param int $y
      * @return $this
      */
-    public function absOffset($x = 0, $y = 0)
+    public function absOffset(int $x = 0, int $y = 0)
     {
-        $this->absOffset = array((int)$x, (int)$y);
+        $this->absOffset = [(int)$x, (int)$y];
         return $this;
     }
 
@@ -264,7 +264,7 @@ class Image
      * @param int $height
      * @return string
      */
-    public function crop($width, $height)
+    public function crop(int $width, int $height): string
     {
         return $this->resize(Creator::FIT_CROP, $width, $height);
     }
@@ -275,7 +275,7 @@ class Image
      * @param int $height
      * @return string
      */
-    public function fit($width, $height)
+    public function fit(int $width, int $height): string
     {
         return $this->resize(Creator::FIT_CONTAIN, $width, $height);
     }
@@ -285,7 +285,7 @@ class Image
      * @param int $width
      * @return string
      */
-    public function fitWidth($width)
+    public function fitWidth(int $width): string
     {
         return $this->resize(Creator::FIT_WIDTH, $width, $width);
     }
@@ -295,7 +295,7 @@ class Image
      * @param int $height
      * @return string
      */
-    public function fitHeight($height)
+    public function fitHeight(int $height): string
     {
         return $this->resize(Creator::FIT_HEIGHT, $height, $height);
     }
@@ -306,7 +306,7 @@ class Image
      * @param int $height
      * @return string
      */
-    public function fill($width, $height)
+    public function fill(int $width, int $height): string
     {
         return $this->resize(Creator::FIT_FILL, $width, $height);
     }
@@ -317,7 +317,7 @@ class Image
      * @param int $height
      * @return string
      */
-    public function max($width, $height)
+    public function max(int $width, int $height): string
     {
         return $this->resize(Creator::FIT_MAX, $width, $height);
     }
@@ -328,7 +328,7 @@ class Image
      * @param int $height
      * @return string
      */
-    public function stretch($width, $height)
+    public function stretch(int $width, int $height): string
     {
         return $this->resize(Creator::FIT_STRETCH, $width, $height);
     }
@@ -339,7 +339,7 @@ class Image
      * @param int $height
      * @return string
      */
-    public function placeCenter($width, $height)
+    public function placeCenter(int $width, int $height): string
     {
         return $this->resize(Creator::PLACE_CENTER, $width, $height);
     }
@@ -351,7 +351,7 @@ class Image
      * @param int $height
      * @return string
      */
-    public function resize($method, $width, $height)
+    public function resize(string $method, int $width, int $height): string
     {
         $width = (int)$width;
         $height = (int)$height;
@@ -361,7 +361,7 @@ class Image
             empty($this->imageUrl) ||
             $width < Creator::$minSize || $height < Creator::$minSize ||
             $width > Creator::$maxSize || $height > Creator::$maxSize ||
-            !in_array($method, Creator::$methods)
+            !\in_array($method, Creator::$methods)
         ) {
             return Helper::getBlankImageUrl();
         }
@@ -380,13 +380,13 @@ class Image
         // check extension
         $dest_ext = pathinfo($image_url, PATHINFO_EXTENSION);
         $dest_ext = strtolower($dest_ext);
-        if (empty($dest_ext) || !in_array($dest_ext, array('jpeg', 'jpg', 'png', 'gif', 'webp'))) {
+        if (empty($dest_ext) || !\in_array($dest_ext, ['jpeg', 'jpg', 'png', 'gif', 'webp'])) {
             return Helper::getBlankImageUrl();
         }
 
         // force format
         if ($this->asJpeg) {
-            if (!in_array($dest_ext, array('jpeg', 'jpg'))) {
+            if (!\in_array($dest_ext, ['jpeg', 'jpg'])) {
                 $image_url .= '.jpg';
             } else {
                 $this->asJpeg = false;
@@ -443,14 +443,14 @@ class Image
         if ($this->absOffset[0] !== 0 || $this->absOffset[1] !== 0) {
             $offset_params = 'o';
             if ($this->absOffset[0] > 0) {
-                $offset_params .= sprintf('l%d', $this->absOffset[0]);
+                $offset_params .= \sprintf('l%d', $this->absOffset[0]);
             } elseif ($this->absOffset[0] < 0) {
-                $offset_params .= sprintf('r%d', abs($this->absOffset[0]));
+                $offset_params .= \sprintf('r%d', abs($this->absOffset[0]));
             }
             if ($this->absOffset[1] > 0) {
-                $offset_params .= sprintf('t%d', $this->absOffset[1]);
+                $offset_params .= \sprintf('t%d', $this->absOffset[1]);
             } elseif ($this->absOffset[1] < 0) {
-                $offset_params .= sprintf('b%d', abs($this->absOffset[1]));
+                $offset_params .= \sprintf('b%d', abs($this->absOffset[1]));
             }
             $params .= (!empty($params) ? '-' : '') . $offset_params;
         }

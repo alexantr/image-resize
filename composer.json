@@ -7,12 +7,12 @@
   "authors": [
     {
       "name": "Alex Yashkin",
-      "email": "alex@yashkin.by",
-      "homepage": "http://yashkin.by/"
+      "email": "alex.yashkin@gmail.com",
+      "homepage": "https://github.com/alexantr"
     }
   ],
   "require": {
-    "php": "^5.3 || ^7.0",
+    "php": "^8.0",
     "ext-fileinfo": "*",
     "ext-mbstring": "*",
     "ext-exif": "*"
@@ -24,7 +24,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "v2.0.x-dev"
+      "dev-master": "v3.0.x-dev"
     }
   }
 }
