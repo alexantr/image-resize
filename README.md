@@ -1,6 +1,6 @@
 # ImageResize
 
-Image resizing library. Creates images on demand using GD.
+Image resizing library. Creates images on demand using GD or Imagick if installed.
 
 ## Install
 
@@ -12,44 +12,57 @@ composer require alexantr/image-resize
 
 ## Examples
 
-See full list of examples in `example` folder.
-
-Creating URLs:
+Generate URL to resized image:
 
 ```php
 use Alexantr\ImageResize\Image;
 
-$src1 = Image::init('uploads/pic.jpg')->crop(200, 200);
-$src2 = Image::init('uploads/pic.jpg')->silhouette()->quality(95)->fit(200, 200);
-$src3 = Image::init('uploads/pic.jpg')->fitWidth(200);
-$src4 = Image::init('uploads/pic.jpg')->fitHeight(200);
-$src5 = Image::init('/site/uploads/pic.jpg')->bgColor('6af')->fill(200, 200);
+$src1 = (new Image('uploads/pic.jpg'))->crop(200, 200);
+$src2 = (new Image('uploads/pic.jpg'))->silhouette()->quality(95)->fit(200, 200);
+$src3 = (new Image('uploads/pic.jpg'))->fitWidth(200);
+$src4 = (new Image('uploads/pic.jpg'))->fitHeight(200);
+$src5 = (new Image('/site/uploads/pic.jpg'))->bgColor('6af')->fill(200, 200);
 ```
 
-Can use class member access on instantiation in PHP 5.4 or higher:
+Or with `init()` static method:
 
 ```
-<img src="<?= (new Image('uploads/pic.jpg'))->crop(200, 200) ?>" alt="">
+<img src="<?= Image::init('uploads/pic.jpg')->crop(200, 200) ?>" alt="">
 ```
 
-## Creator example
+More examples in `example` folder.
 
-Apache `.htacces` file:
+## Configure Creator
+
+Apache `.htaccess` example:
 
 ```
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^resized/(.*)$ image.php?path=$1 [L]
+RewriteRule ^resized/(.+)$ image.php?path=$1 [L,QSA]
 ```
 
-`image.php` in web root folder:
+nginx config example:
+
+```
+location ~ ^/resized/(.+)$ {
+    try_files $uri $uri/ /image.php?path=$1&$args;
+}
+```
+
+Example of `image.php`:
 
 ```php
 require '../vendor/autoload.php';
 
 $webroot = __DIR__;
-$path = isset($_GET['path']) ? $_GET['path'] : '';
+$path = $_GET['path'] ?? '';
+
+// custom defaults
+//Alexantr\ImageResize\Creator::$defaultQuality = 70;
+//Alexantr\ImageResize\Creator::$enableProgressiveJpeg = true;
+//Alexantr\ImageResize\Creator::$imagickDisabled = true;
 
 Alexantr\ImageResize\Creator::create($webroot, $path);
 ```
