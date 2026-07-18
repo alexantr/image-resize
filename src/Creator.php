@@ -159,9 +159,9 @@ class Creator
             $filename = pathinfo($orig_path, PATHINFO_FILENAME);
             $orig_ext = pathinfo($filename, PATHINFO_EXTENSION);
             if (
-                !empty($orig_ext) &&
-                \in_array($orig_ext, ['jpeg', 'jpg', 'png', 'gif', 'webp']) &&
-                is_file($orig_dirname . '/' . $filename)
+                !empty($orig_ext)
+                && \in_array($orig_ext, ['jpeg', 'jpg', 'png', 'gif', 'webp'])
+                && is_file($orig_dirname . '/' . $filename)
             ) {
                 $orig_path = $orig_dirname . '/' . $filename;
             }
@@ -388,16 +388,16 @@ class Creator
             $dst_y += $abs_offset[1];
         }
 
-        $width = (int)$width;
-        $height = (int)$height;
-        $new_w = (int)$new_w;
-        $new_h = (int)$new_h;
-        $dst_x = (int)$dst_x;
-        $dst_y = (int)$dst_y;
-        $crop_x = (int)$crop_x;
-        $crop_y = (int)$crop_y;
-        $crop_w = (int)$crop_w;
-        $crop_h = (int)$crop_h;
+        $width = (int) $width;
+        $height = (int) $height;
+        $new_w = (int) $new_w;
+        $new_h = (int) $new_h;
+        $dst_x = (int) $dst_x;
+        $dst_y = (int) $dst_y;
+        $crop_x = (int) $crop_x;
+        $crop_y = (int) $crop_y;
+        $crop_w = (int) $crop_w;
+        $crop_h = (int) $crop_h;
 
         // imagick
         if (!self::$imagickDisabled && extension_loaded('imagick')) {
@@ -516,7 +516,7 @@ class Creator
         if ($orientation == 8 || $orientation == 7) {
             $im = imagerotate($im, 90, 0);
         }
-        if (\in_array($orientation, array(2, 4, 5, 7))) {
+        if (\in_array($orientation, [2, 4, 5, 7])) {
             imageflip($im, IMG_FLIP_HORIZONTAL);
         }
 
@@ -526,7 +526,7 @@ class Creator
         if ($as_png) {
             imagealphablending($new_im, false);
             imagesavealpha($new_im, true);
-            $alpha = (int)round(127 - 127 * $rgb['a'] / 255);
+            $alpha = (int) round(127 - 127 * $rgb['a'] / 255);
             $color = imagecolorallocatealpha($new_im, $rgb['r'], $rgb['g'], $rgb['b'], $alpha);
             imagefilledrectangle($new_im, 0, 0, $width, $height, $color);
             imagealphablending($new_im, true);

@@ -254,7 +254,7 @@ class Image
      */
     public function absOffset(int $x = 0, int $y = 0)
     {
-        $this->absOffset = [(int)$x, (int)$y];
+        $this->absOffset = [(int) $x, (int) $y];
         return $this;
     }
 
@@ -353,8 +353,8 @@ class Image
      */
     public function resize(string $method, int $width, int $height): string
     {
-        $width = (int)$width;
-        $height = (int)$height;
+        $width = (int) $width;
+        $height = (int) $height;
 
         // wrong params
         if (

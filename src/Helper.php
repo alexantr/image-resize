@@ -18,7 +18,7 @@ class Helper
      */
     public static function processQuality(int|string $quality): int
     {
-        $quality = (int)$quality;
+        $quality = (int) $quality;
         if ($quality > Creator::$maxQuality) {
             $quality = Creator::$maxQuality;
         }
@@ -64,18 +64,18 @@ class Helper
             $offset_y_param = $m[9] ?? '';
             if ($offset_x_param !== '') {
                 $offset_x_param_dir = substr($offset_x_param, 0, 1);
-                $offset_x_param_value = (int)substr($offset_x_param, 1);
+                $offset_x_param_value = (int) substr($offset_x_param, 1);
                 $abs_offset[0] = $offset_x_param_dir == 'r' ? -$offset_x_param_value : $offset_x_param_value;
             }
             if ($offset_y_param !== '') {
                 $offset_y_param_dir = substr($offset_y_param, 0, 1);
-                $offset_y_param_value = (int)substr($offset_y_param, 1);
+                $offset_y_param_value = (int) substr($offset_y_param, 1);
                 $abs_offset[1] = $offset_y_param_dir == 'b' ? -$offset_y_param_value : $offset_y_param_value;
             }
             return [
                 'dir_name' => $m[1],
-                'width' => (int)$m[2],
-                'height' => (int)$m[3],
+                'width' => (int) $m[2],
+                'height' => (int) $m[3],
                 'method' => $m[4],
                 'quality' => ($m[5] !== '' ? Helper::processQuality($m[5]) : Creator::$defaultQuality),
                 'bg_color' => Helper::normalizeHexColor($m[6]),
