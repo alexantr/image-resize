@@ -7,18 +7,18 @@ namespace Alexantr\ImageResize;
  */
 class Creator
 {
-    const BLANK_IMAGE_NAME = 'b.gif';
-    const DEFAULT_IMAGE_NAME = 'no-image.png';
-    const DEFAULT_SILHOUETTE_NAME = 'no-image-person.png';
+    public const BLANK_IMAGE_NAME = 'b.gif';
+    public const DEFAULT_IMAGE_NAME = 'no-image.png';
+    public const DEFAULT_SILHOUETTE_NAME = 'no-image-person.png';
 
-    const FIT_CROP = 'crop';
-    const FIT_CONTAIN = 'fit';
-    const FIT_WIDTH = 'fitw';
-    const FIT_HEIGHT = 'fith';
-    const FIT_FILL = 'fill'; // old 'place'
-    const FIT_MAX = 'max';
-    const FIT_STRETCH = 'stretch';
-    const PLACE_CENTER = 'center';
+    public const FIT_CROP = 'crop';
+    public const FIT_CONTAIN = 'fit';
+    public const FIT_WIDTH = 'fitw';
+    public const FIT_HEIGHT = 'fith';
+    public const FIT_FILL = 'fill';
+    public const FIT_MAX = 'max';
+    public const FIT_STRETCH = 'stretch';
+    public const PLACE_CENTER = 'center';
 
     /**
      * @var string base directory where resized images are saving
@@ -51,11 +51,11 @@ class Creator
     /**
      * @var array allowed mime types
      */
-    public static $mimeTypes = array('image/gif', 'image/jpeg', 'image/png', 'image/webp');
+    public static $mimeTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/webp'];
     /**
      * @var array allowed methods
      */
-    public static $methods = array(
+    public static $methods = [
         self::FIT_CROP,
         self::FIT_CONTAIN,
         self::FIT_WIDTH,
@@ -64,7 +64,7 @@ class Creator
         self::FIT_MAX,
         self::FIT_STRETCH,
         self::PLACE_CENTER,
-    );
+    ];
     /**
      * @var string custom path to default image
      */
@@ -84,7 +84,7 @@ class Creator
     /**
      * @var int PNG compression level (0..9)
      */
-    public static $gdPngCompressionLevel = 9;
+    public static $gdPngCompressionLevel = 6;
 
     /**
      * Create image based on $path
@@ -101,7 +101,7 @@ class Creator
 
         // get params from path
         $params = Helper::parsePath($path);
-        if (!is_array($params)) {
+        if (!\is_array($params)) {
             self::showBlankImage();
         }
 
@@ -131,7 +131,7 @@ class Creator
             empty($image_url) ||
             $width < self::$minSize || $height < self::$minSize ||
             $width > self::$maxSize || $height > self::$maxSize ||
-            !in_array($method, self::$methods)
+            !\in_array($method, self::$methods)
         ) {
             self::showBlankImage();
         }
@@ -156,7 +156,11 @@ class Creator
             $orig_dirname = dirname($orig_path);
             $filename = pathinfo($orig_path, PATHINFO_FILENAME);
             $orig_ext = pathinfo($filename, PATHINFO_EXTENSION);
-            if (!empty($orig_ext) && in_array($orig_ext, array('jpeg', 'jpg', 'png', 'gif', 'webp')) && is_file($orig_dirname . '/' . $filename)) {
+            if (
+                !empty($orig_ext)
+                && \in_array($orig_ext, ['jpeg', 'jpg', 'png', 'gif', 'webp'])
+                && is_file($orig_dirname . '/' . $filename)
+            ) {
                 $orig_path = $orig_dirname . '/' . $filename;
             }
         }
@@ -189,7 +193,7 @@ class Creator
                 self::showImage($dest_path);
             }
             // reset offest
-            $abs_offset = array(0, 0);
+            $abs_offset = [0, 0];
         }
 
         // can't find default image
@@ -204,7 +208,7 @@ class Creator
         }
         $src_w = $size[0];
         $src_h = $size[1];
-        if ($src_w == 0 || $src_h == 0 || empty($size['mime']) || !in_array($size['mime'], self::$mimeTypes)) {
+        if ($src_w == 0 || $src_h == 0 || empty($size['mime']) || !\in_array($size['mime'], self::$mimeTypes)) {
             self::showBlankImage();
         }
 
@@ -261,7 +265,7 @@ class Creator
         }
 
         // switch width & height
-        if (in_array($orientation, array(5, 6, 7, 8))) {
+        if (\in_array($orientation, [5, 6, 7, 8])) {
             $old_w = $src_w;
             $src_w = $src_h;
             $src_h = $old_w;
@@ -382,6 +386,17 @@ class Creator
             $dst_y += $abs_offset[1];
         }
 
+        $width = (int) $width;
+        $height = (int) $height;
+        $new_w = (int) $new_w;
+        $new_h = (int) $new_h;
+        $dst_x = (int) $dst_x;
+        $dst_y = (int) $dst_y;
+        $crop_x = (int) $crop_x;
+        $crop_y = (int) $crop_y;
+        $crop_w = (int) $crop_w;
+        $crop_h = (int) $crop_h;
+
         // imagick
         if (!self::$imagickDisabled && extension_loaded('imagick')) {
             try {
@@ -415,7 +430,7 @@ class Creator
                 if ($orientation == 8 || $orientation == 7) {
                     $im->rotateImage($fill_color, 270);
                 }
-                if (in_array($orientation, array(2, 4, 5, 7))) {
+                if (\in_array($orientation, [2, 4, 5, 7])) {
                     $im->flopImage();
                 }
 
@@ -479,11 +494,7 @@ class Creator
         } elseif ($is_png) {
             $im = imagecreatefrompng($orig_path);
         } elseif ($is_webp) {
-            if (function_exists('imagecreatefromwebp')) {
-                $im = imagecreatefromwebp($orig_path);
-            } else {
-                $im = false;
-            }
+            $im = imagecreatefromwebp($orig_path);
         } else {
             $im = imagecreatefromjpeg($orig_path);
         }
@@ -503,8 +514,8 @@ class Creator
         if ($orientation == 8 || $orientation == 7) {
             $im = imagerotate($im, 90, 0);
         }
-        if (in_array($orientation, array(2, 4, 5, 7))) {
-            Helper::flopImage($im);
+        if (\in_array($orientation, [2, 4, 5, 7])) {
+            imageflip($im, IMG_FLIP_HORIZONTAL);
         }
 
         // copying
@@ -513,7 +524,7 @@ class Creator
         if ($as_png) {
             imagealphablending($new_im, false);
             imagesavealpha($new_im, true);
-            $alpha = 127 - 127 * $rgb['a'] / 255;
+            $alpha = (int) round(127 - 127 * $rgb['a'] / 255);
             $color = imagecolorallocatealpha($new_im, $rgb['r'], $rgb['g'], $rgb['b'], $alpha);
             imagefilledrectangle($new_im, 0, 0, $width, $height, $color);
             imagealphablending($new_im, true);
@@ -522,12 +533,12 @@ class Creator
             imagefill($new_im, 0, 0, $color);
         }
         if ($method == self::FIT_CROP || $method == self::PLACE_CENTER) {
-            $im = Helper::cropImage($im, array(
+            $im = imagecrop($im, [
                 'x' => $crop_x,
                 'y' => $crop_y,
                 'width' => $crop_w,
                 'height' => $crop_h,
-            ));
+            ]);
             $crop_x = 0;
             $crop_y = 0;
         }
@@ -552,7 +563,7 @@ class Creator
             imagepng($new_im, $dest_path, $level);
         } elseif ($as_gif) {
             imagegif($new_im, $dest_path);
-        } elseif ($as_webp && function_exists('imagewebp')) {
+        } elseif ($as_webp) {
             imagewebp($new_im, $dest_path, $quality);
         } else {
             if (self::$enableProgressiveJpeg) {
@@ -580,12 +591,12 @@ class Creator
     {
         if ($mime_type === null) {
             $size = getimagesize($image_path);
-            if (!$size || $size[0] == 0 || $size[1] == 0 || empty($size['mime']) || !in_array($size['mime'], self::$mimeTypes)) {
+            if (!$size || $size[0] == 0 || $size[1] == 0 || empty($size['mime']) || !\in_array($size['mime'], self::$mimeTypes)) {
                 self::showBlankImage();
             }
             $mime_type = $size['mime'];
         }
-        if (!in_array($mime_type, self::$mimeTypes)) {
+        if (!\in_array($mime_type, self::$mimeTypes)) {
             self::showBlankImage();
         }
         header('Content-Type: ' . $mime_type);

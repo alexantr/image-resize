@@ -70,7 +70,7 @@ class Image
     /**
      * @var int[] absolute offset in pixels (x px, y px)
      */
-    protected $absOffset = array(0, 0);
+    protected $absOffset = [0, 0];
 
     /**
      * @param string $imageUrl
@@ -254,7 +254,7 @@ class Image
      */
     public function absOffset($x = 0, $y = 0)
     {
-        $this->absOffset = array((int)$x, (int)$y);
+        $this->absOffset = [(int) $x, (int) $y];
         return $this;
     }
 
@@ -353,15 +353,15 @@ class Image
      */
     public function resize($method, $width, $height)
     {
-        $width = (int)$width;
-        $height = (int)$height;
+        $width = (int) $width;
+        $height = (int) $height;
 
         // wrong params
         if (
             empty($this->imageUrl) ||
             $width < Creator::$minSize || $height < Creator::$minSize ||
             $width > Creator::$maxSize || $height > Creator::$maxSize ||
-            !in_array($method, Creator::$methods)
+            !\in_array($method, Creator::$methods)
         ) {
             return Helper::getBlankImageUrl();
         }
@@ -380,13 +380,13 @@ class Image
         // check extension
         $dest_ext = pathinfo($image_url, PATHINFO_EXTENSION);
         $dest_ext = strtolower($dest_ext);
-        if (empty($dest_ext) || !in_array($dest_ext, array('jpeg', 'jpg', 'png', 'gif', 'webp'))) {
+        if (empty($dest_ext) || !\in_array($dest_ext, ['jpeg', 'jpg', 'png', 'gif', 'webp'])) {
             return Helper::getBlankImageUrl();
         }
 
         // force format
         if ($this->asJpeg) {
-            if (!in_array($dest_ext, array('jpeg', 'jpg'))) {
+            if (!\in_array($dest_ext, ['jpeg', 'jpg'])) {
                 $image_url .= '.jpg';
             } else {
                 $this->asJpeg = false;
@@ -443,14 +443,14 @@ class Image
         if ($this->absOffset[0] !== 0 || $this->absOffset[1] !== 0) {
             $offset_params = 'o';
             if ($this->absOffset[0] > 0) {
-                $offset_params .= sprintf('l%d', $this->absOffset[0]);
+                $offset_params .= \sprintf('l%d', $this->absOffset[0]);
             } elseif ($this->absOffset[0] < 0) {
-                $offset_params .= sprintf('r%d', abs($this->absOffset[0]));
+                $offset_params .= \sprintf('r%d', abs($this->absOffset[0]));
             }
             if ($this->absOffset[1] > 0) {
-                $offset_params .= sprintf('t%d', $this->absOffset[1]);
+                $offset_params .= \sprintf('t%d', $this->absOffset[1]);
             } elseif ($this->absOffset[1] < 0) {
-                $offset_params .= sprintf('b%d', abs($this->absOffset[1]));
+                $offset_params .= \sprintf('b%d', abs($this->absOffset[1]));
             }
             $params .= (!empty($params) ? '-' : '') . $offset_params;
         }

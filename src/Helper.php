@@ -18,7 +18,7 @@ class Helper
      */
     public static function processQuality($quality)
     {
-        $quality = (int)$quality;
+        $quality = (int) $quality;
         if ($quality > Creator::$maxQuality) {
             $quality = Creator::$maxQuality;
         }
@@ -59,41 +59,41 @@ class Helper
             $params = $m[7];
             $params = str_split($params);
             // abs offset
-            $abs_offset = array(0, 0);
-            $offset_x_param = isset($m[8]) ? $m[8] : '';
-            $offset_y_param = isset($m[9]) ? $m[9] : '';
+            $abs_offset = [0, 0];
+            $offset_x_param = $m[8] ?? '';
+            $offset_y_param = $m[9] ?? '';
             if ($offset_x_param !== '') {
                 $offset_x_param_dir = substr($offset_x_param, 0, 1);
-                $offset_x_param_value = (int)substr($offset_x_param, 1);
+                $offset_x_param_value = (int) substr($offset_x_param, 1);
                 $abs_offset[0] = $offset_x_param_dir == 'r' ? -$offset_x_param_value : $offset_x_param_value;
             }
             if ($offset_y_param !== '') {
                 $offset_y_param_dir = substr($offset_y_param, 0, 1);
-                $offset_y_param_value = (int)substr($offset_y_param, 1);
+                $offset_y_param_value = (int) substr($offset_y_param, 1);
                 $abs_offset[1] = $offset_y_param_dir == 'b' ? -$offset_y_param_value : $offset_y_param_value;
             }
-            return array(
+            return [
                 'dir_name' => $m[1],
-                'width' => (int)$m[2],
-                'height' => (int)$m[3],
+                'width' => (int) $m[2],
+                'height' => (int) $m[3],
                 'method' => $m[4],
                 'quality' => ($m[5] !== '' ? Helper::processQuality($m[5]) : Creator::$defaultQuality),
                 'bg_color' => Helper::normalizeHexColor($m[6]),
-                'silhouette' => in_array('s', $params),
-                'as_jpeg' => in_array('j', $params),
-                'as_png' => in_array('p', $params),
-                'as_gif' => in_array('f', $params),
-                'as_webp' => in_array('w', $params),
-                'place_upper' => in_array('u', $params),
-                'no_top_offset' => in_array('n', $params),
-                'no_bottom_offset' => in_array('b', $params),
-                'disable_copy' => in_array('c', $params),
-                'skip_small' => in_array('t', $params),
-                'no_exif_rotate' => in_array('r', $params),
-                'grayscale' => in_array('g', $params),
+                'silhouette' => \in_array('s', $params),
+                'as_jpeg' => \in_array('j', $params),
+                'as_png' => \in_array('p', $params),
+                'as_gif' => \in_array('f', $params),
+                'as_webp' => \in_array('w', $params),
+                'place_upper' => \in_array('u', $params),
+                'no_top_offset' => \in_array('n', $params),
+                'no_bottom_offset' => \in_array('b', $params),
+                'disable_copy' => \in_array('c', $params),
+                'skip_small' => \in_array('t', $params),
+                'no_exif_rotate' => \in_array('r', $params),
+                'grayscale' => \in_array('g', $params),
                 'abs_offset' => $abs_offset,
                 'image_url' => trim($m[10]),
-            );
+            ];
         } else {
             return false;
         }
@@ -124,8 +124,7 @@ class Helper
                 $image_url = mb_substr($image_url, mb_strlen($baseUrl));
             }
         }
-        $image_url = ltrim($image_url, '/');
-        return $image_url;
+        return ltrim($image_url, '/');
     }
 
     /**
@@ -136,17 +135,17 @@ class Helper
     public static function hex2rgb($hex)
     {
         $hex = self::normalizeHexColor($hex);
-        if (strlen($hex) == 3) {
+        if (\strlen($hex) == 3) {
             $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
             $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
             $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
             $a = 255;
-        } elseif (strlen($hex) == 4) {
+        } elseif (\strlen($hex) == 4) {
             $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
             $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
             $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
             $a = hexdec(substr($hex, 3, 1) . substr($hex, 3, 1));
-        } elseif (strlen($hex) == 8) {
+        } elseif (\strlen($hex) == 8) {
             $r = hexdec(substr($hex, 0, 2));
             $g = hexdec(substr($hex, 2, 2));
             $b = hexdec(substr($hex, 4, 2));
@@ -157,7 +156,7 @@ class Helper
             $b = hexdec(substr($hex, 4, 2));
             $a = 255;
         }
-        return array('r' => $r, 'g' => $g, 'b' => $b, 'a' => $a);
+        return ['r' => $r, 'g' => $g, 'b' => $b, 'a' => $a];
     }
 
     /**
@@ -191,51 +190,5 @@ class Helper
             self::$baseUrl = rtrim(dirname($scriptUrl), '\\/');
         }
         return self::$baseUrl;
-    }
-
-    /**
-     * @param resource $image
-     */
-    public static function flopImage($image)
-    {
-        if (function_exists('imageflip') && defined('IMG_FLIP_HORIZONTAL')) {
-            imageflip($image, IMG_FLIP_HORIZONTAL);
-        } else {
-            $max_x = imagesx($image) - 1;
-            $half_x = $max_x / 2;
-            $sy = imagesy($image);
-            $temp_image = imageistruecolor($image) ? imagecreatetruecolor(1, $sy) : imagecreate(1, $sy);
-            for ($x = 0; $x < $half_x; ++$x) {
-                imagecopy($temp_image, $image, 0, 0, $x, 0, 1, $sy);
-                imagecopy($image, $image, $x, 0, $max_x - $x, 0, 1, $sy);
-                imagecopy($image, $temp_image, $max_x - $x, 0, 0, 0, 1, $sy);
-            }
-        }
-    }
-
-    /**
-     * @param resource $src
-     * @param array $rect
-     * @return resource|bool
-     */
-    public static function cropImage($src, array $rect)
-    {
-        if (!function_exists('imagecrop')) {
-            $im = imagecreatetruecolor($rect['width'], $rect['height']);
-            imagealphablending($im, false);
-            imagesavealpha($im, true);
-            $color = imagecolorallocatealpha($im, 255, 255, 255, 127);
-            imagefilledrectangle($im, 0, 0, $rect['width'], $rect['height'], $color);
-            imagecopy($im, $src, 0, 0, $rect['x'], $rect['y'], $rect['width'], $rect['height']);
-        } else {
-            $im = imagecrop($src, array(
-                'x' => $rect['x'],
-                'y' => $rect['y'],
-                'width' => $rect['width'],
-                'height' => $rect['height'],
-            ));
-        }
-
-        return $im;
     }
 }
